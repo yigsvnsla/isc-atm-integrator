@@ -29,7 +29,7 @@ export class Result<Type, Error> {
     }
 
     public getError(): Error {
-        if (!this._isSuccess || this._error === null) {
+        if (this._isSuccess || this._error === null) {
             throw new Error('Cannot get the error of a successful result.');
         }
         return this._error;
