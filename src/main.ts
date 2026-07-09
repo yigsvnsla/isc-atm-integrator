@@ -1,42 +1,34 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
-    const API_PREFIX = process.env.API_PREFIX ?? '/api';
+  const API_PREFIX = process.env.API_PREFIX ?? '/api';
 
-    const config = new DocumentBuilder()
-        .setTitle('Orders API')
-        .setDescription('ISC ATM Integrator — Orders CQRS reference API')
-        .setVersion('1.0')
-        .addTag('orders')
-        .build();
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
 
-    const app = await NestFactory.create(AppModule);
-    const document = SwaggerModule.createDocument(app, config, {
-        ignoreGlobalPrefix: false,
-    });
+  const app = await NestFactory.create(AppModule);
+  const document = SwaggerModule.createDocument(app, config, {
+    ignoreGlobalPrefix: false,
+  });
 
-    app.setGlobalPrefix(API_PREFIX);
-    app.useGlobalPipes(
-        new ValidationPipe({
-            whitelist: true,
-            forbidNonWhitelisted: true,
-            transform: true,
-        }),
-    );
+  app.setGlobalPrefix(API_PREFIX);
 
-    app.use(
-        `${API_PREFIX}/reference`,
-        apiReference({
-            theme: 'purple',
-            content: document,
-        }),
-    );
+  app.use(
+    `${API_PREFIX}/reference`,
+    apiReference({
+      theme: 'purple',
+      content: document,
+    }),
+  );
 
-    await app.listen(process.env.PORT ?? 4000);
+  await app.listen(process.env.PORT ?? 3000);
 }
 
 void bootstrap();

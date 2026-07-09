@@ -46,9 +46,6 @@ lerna-debug.log*
 .temp
 .tmp
 
-# SQLite runtime data (sqljs persistence)
-/data
-
 # Runtime data
 pids
 *.pid
