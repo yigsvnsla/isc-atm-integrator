@@ -1,2 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface Command {}
+export type Command = object;
+
+export interface CommandHandler<TCommand extends Command> {
+    execute(command: TCommand): Promise<void>;
+}
