@@ -29,7 +29,7 @@ async function bootstrap() {
         .build();
 
     const document = SwaggerModule.createDocument(app, config, {
-        ignoreGlobalPrefix: false,
+        ignoreGlobalPrefix: true,
     });
 
     app.use(
