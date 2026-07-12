@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import { ValidationPipe } from '@nestjs/common';
-import { AllExceptionsFilter } from '@shared/core/exception-filter';
 
 async function bootstrap() {
     const API_PREFIX = process.env.API_PREFIX ?? '/api';
@@ -18,7 +17,6 @@ async function bootstrap() {
             forbidNonWhitelisted: true,
         }),
     );
-    app.useGlobalFilters(new AllExceptionsFilter());
 
     const config = new DocumentBuilder()
         .setTitle('ISC ATM Integrator')
