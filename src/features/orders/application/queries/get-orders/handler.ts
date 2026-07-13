@@ -5,24 +5,23 @@ import { QueryHandler } from '@cqrs/query';
 import { ORDER_REPOSITORY } from '@features/orders/domain/order.repository';
 import type { IOrderRepository } from '@features/orders/domain/order.repository';
 import { GetOrdersQuery } from './query';
-import { OrdersListResponse } from '../../orders-list-response.dto';
-import { toOrderResponseDto } from '../../orders-response.dto';
-import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
+import { GetOrdersResponse } from './response.dto';
+// import { toGetOrderByIdResponse } from '../get-order-by-id/response';
 import { ResponseMetadataPaginationBuilder } from '@core/response/api-response-metadata-pagination-builder';
 import { ResponseMetadataBuilder } from '@core/response/api-response-metadata-builder';
 
 export class GetOrdersHandler implements QueryHandler<
     GetOrdersQuery,
-    OrdersListResponse
+    GetOrdersResponse
 > {
     public constructor(
         @Inject(ORDER_REPOSITORY) private readonly repository: IOrderRepository,
         @Inject(CACHE_MANAGER) private readonly cache: Cache,
     ) {}
 
-    public async execute(query: GetOrdersQuery): Promise<OrdersListResponse> {
+    public async execute(query: GetOrdersQuery): Promise<GetOrdersResponse> {
         const cacheKey = `orders:p${query.page}:l${query.limit}`;
-        const cached = await this.cache.get<OrdersListResponse>(cacheKey);
+        const cached = await this.cache.get<GetOrdersResponse>(cacheKey);
         if (cached) return cached;
 
         const result = await this.repository.findAll(query.page, query.limit);
@@ -31,19 +30,18 @@ export class GetOrdersHandler implements QueryHandler<
             .setPage(result.page)
             .setLimit(result.limit)
             .setTotalItems(result.total)
-            .build() as ResponseMetadataPagination;
+            .build();
+
         const metadata = new ResponseMetadataBuilder()
             .setStatusCode(HttpStatus.OK)
             .setMessage('OK')
             .setPagination(pagination)
             .build();
 
-        const response = new OrdersListResponse(
-            result.items.map(toOrderResponseDto),
-            metadata,
-        );
+        // TODO: result.items -> data Response
+        const response = new GetOrdersResponse([], metadata);
 
-        await this.cache.set(cacheKey, response, 60_000);
+        await this.cache.set(cacheKey, response);
 
         return response;
     }

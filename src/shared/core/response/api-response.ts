@@ -12,7 +12,10 @@ export class Response<T> implements IApiResponse<T> {
     @ApiProperty({ description: 'Response payload' })
     public readonly data: T;
 
-    @ApiProperty({ type: () => ResponseMetadata, description: 'Response metadata' })
+    @ApiProperty({
+        type: () => ResponseMetadata,
+        description: 'Response metadata',
+    })
     public readonly metadata: IApiResponseMetadata;
 
     public constructor(data: T, metadata: IApiResponseMetadata) {

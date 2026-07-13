@@ -3,10 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MediatorModule } from '@cqrs/mediator.module';
 import { OrderEntity } from './infrastructure/persistence/typeorm/order.entity';
 import { ORDER_REPOSITORY } from './domain/order.repository';
-import { TypeormOrderRepository } from './infrastructure/persistence/typeorm/typeorm-order.repository';
-import { OrdersController } from './orders.controller';
+import { TypeormOrderRepository } from './infrastructure/persistence/typeorm/order.repository';
+import { OrdersController } from './presentation/orders.controller';
 import { CreateOrderHandler } from './application/commands/create-order/handler';
-import { CreateOrderMapper } from './application/commands/create-order/mapper';
 import { GetOrdersHandler } from './application/queries/get-orders/handler';
 import { GetOrderByIdHandler } from './application/queries/get-order-by-id/handler';
 import { Mediator } from '@shared/cqrs/mediator';
@@ -20,7 +19,6 @@ import { GetOrderByIdQuery } from './application/queries/get-order-by-id/query';
     providers: [
         { provide: ORDER_REPOSITORY, useClass: TypeormOrderRepository },
         CreateOrderHandler,
-        CreateOrderMapper,
         GetOrdersHandler,
         GetOrderByIdHandler,
     ],

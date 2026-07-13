@@ -1,8 +1,10 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class OrderBuilder {
     private id: string;
     private customerName: string;
     private amount: number;
-    private status: 'pending' | 'confirmed' | 'cancelled';
+    private status: (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
     private createdAt: Date;
 
     public setId(id: string): this {
@@ -20,7 +22,9 @@ export class OrderBuilder {
         return this;
     }
 
-    public setStatus(status: 'pending' | 'confirmed' | 'cancelled'): this {
+    public setStatus(
+        status: (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS],
+    ): this {
         this.status = status;
         return this;
     }
@@ -41,18 +45,33 @@ export class OrderBuilder {
     }
 }
 
+export const ORDER_STATUS = {
+    PENDING: 'pending',
+    CONFIRMED: 'confirmed',
+    CANCELLED: 'cancelled',
+} as const;
+
 export class Order {
+    @ApiProperty({ example: '267c00a9-865e-4b6b-af47-c81a021cc038' })
     public readonly id: string;
+
+    @ApiProperty({ example: 'Alice' })
     public readonly customerName: string;
+
+    @ApiProperty({ example: 100 })
     public readonly amount: number;
-    public readonly status: 'pending' | 'confirmed' | 'cancelled';
+
+    @ApiProperty({ enum: ORDER_STATUS })
+    public readonly status: (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
+
+    @ApiProperty({ example: '2026-07-09T22:31:30.974Z' })
     public readonly createdAt: Date;
 
     public constructor(
         id: string,
         customerName: string,
         amount: number,
-        status: 'pending' | 'confirmed' | 'cancelled',
+        status: (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS],
         createdAt: Date,
     ) {
         this.id = id;

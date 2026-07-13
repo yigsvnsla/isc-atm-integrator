@@ -9,7 +9,7 @@ import { ResponseMetadataPagination } from './api-response-metadata-pagination';
 export interface IApiResponseMetadata {
     readonly statusCode: number;
     readonly message: string;
-    readonly pagination: IApiResponseMetadataPagination;
+    readonly pagination: IApiResponseMetadataPagination | null;
 }
 
 export class ResponseMetadata implements IApiResponseMetadata {
@@ -24,12 +24,12 @@ export class ResponseMetadata implements IApiResponseMetadata {
         nullable: true,
         description: 'Pagination metadata (null if not paginated)',
     })
-    public readonly pagination: IApiResponseMetadataPagination;
+    public readonly pagination: IApiResponseMetadataPagination | null;
 
     constructor(
         statusCode: number,
         message: string,
-        pagination: IApiResponseMetadataPagination,
+        pagination: IApiResponseMetadataPagination | null,
     ) {
         this.statusCode = statusCode;
         this.message = message;

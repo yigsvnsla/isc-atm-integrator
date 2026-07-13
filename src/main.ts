@@ -6,6 +6,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import configuration from '@infrastructure/config/configuration';
 import swaggerMetadata from './metadata';
+import { ApiResponseError } from '@shared/core/response/api-response-error';
 
 // TODO: mover este tipado a donde corresponde, ya que genera una dependecia directa del modulo de arranque
 export type AppConfigService = ConfigService<
@@ -34,6 +35,7 @@ async function bootstrap() {
         header: 'x-api-version',
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     await SwaggerModule.loadPluginMetadata(swaggerMetadata);
 
     const swaggerConfig = new DocumentBuilder()
@@ -48,6 +50,22 @@ async function bootstrap() {
             description: 'API version',
             required: true,
             schema: { type: 'string', default: '1' },
+        })
+
+        .addGlobalResponse({
+            status: '4XX',
+            description: 'Client error',
+            type: ApiResponseError,
+        })
+        .addGlobalResponse({
+            status: '5XX',
+            description: 'Internal server error',
+            type: ApiResponseError,
+        })
+        .addGlobalResponse({
+            status: 'default',
+            description: 'Unexpected error',
+            type: ApiResponseError,
         })
         .build();
 

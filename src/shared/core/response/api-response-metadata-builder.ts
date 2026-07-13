@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common';
 import { IBuilder } from '../types';
 import {
     IApiResponseMetadata,
@@ -6,7 +7,7 @@ import {
 import { IApiResponseMetadataPagination } from './api-response-metadata-pagination';
 
 export interface IResponseMetadataBuilder extends IBuilder<IApiResponseMetadata> {
-    setStatusCode(statusCode: number): IResponseMetadataBuilder;
+    setStatusCode(statusCode: HttpStatus): IResponseMetadataBuilder;
     setMessage(message: string): IResponseMetadataBuilder;
     setPagination(
         pagination: IApiResponseMetadataPagination,
@@ -16,9 +17,9 @@ export interface IResponseMetadataBuilder extends IBuilder<IApiResponseMetadata>
 export class ResponseMetadataBuilder implements IResponseMetadataBuilder {
     private statusCode: number;
     private message: string;
-    private pagination: IApiResponseMetadataPagination;
+    private pagination: IApiResponseMetadataPagination | null;
 
-    public setStatusCode(statusCode: number): IResponseMetadataBuilder {
+    public setStatusCode(statusCode: HttpStatus): IResponseMetadataBuilder {
         this.statusCode = statusCode;
         return this;
     }

@@ -10,15 +10,14 @@ export class TypeormOrderRepository implements IOrderRepository {
         private readonly repo: Repository<OrderEntity>,
     ) {}
 
-    public async save(order: Order): Promise<Order> {
-        const entity = OrderEntity.fromDomain(order);
-        await this.repo.save(entity);
-        return order;
+    public async save(order: Order): Promise<OrderEntity> {
+        const result = await this.repo.save(order);
+        return result;
     }
 
-    public async findById(id: string): Promise<Order | null> {
-        const entity = await this.repo.findOneBy({ id });
-        return entity ? OrderEntity.toDomain(entity) : null;
+    public async findById(id: string): Promise<OrderEntity | null> {
+        const result = await this.repo.findOneBy({ id });
+        return result;
     }
 
     public async findAll(page: number, limit: number) {
@@ -28,7 +27,7 @@ export class TypeormOrderRepository implements IOrderRepository {
             take: limit,
         });
         return {
-            items: items.map(OrderEntity.toDomain),
+            items,
             total,
             page,
             limit,

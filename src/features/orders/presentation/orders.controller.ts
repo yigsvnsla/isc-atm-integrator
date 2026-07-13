@@ -1,8 +1,4 @@
-import {
-    ApiExtraModels,
-    ApiNotFoundResponse,
-    ApiTags,
-} from '@nestjs/swagger';
+import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
     Body,
     Controller,
@@ -17,12 +13,12 @@ import {
     Version,
 } from '@nestjs/common';
 import { Mediator } from '@cqrs/mediator';
-import { CreateOrderCommand } from './application/commands/create-order/command';
-import { CreateOrderResponse } from './application/commands/create-order/create-order.response.dto';
-import { GetOrdersQuery } from './application/queries/get-orders/query';
-import { GetOrderByIdQuery } from './application/queries/get-order-by-id/query';
-import { OrderResponseDto } from './application/orders-response.dto';
-import { OrdersListResponse } from './application/orders-list-response.dto';
+import { CreateOrderCommand } from '../application/commands/create-order/command';
+import { CreateOrderResponse } from '../application/commands/create-order/response.dto';
+import { GetOrdersQuery } from '../application/queries/get-orders/query';
+import { GetOrderByIdQuery } from '../application/queries/get-order-by-id/query';
+import { GetOrderByIdResponse } from '../application/queries/get-order-by-id/response.dto';
+import { GetOrdersResponse } from '../application/queries/get-orders/response.dto';
 import { ApiResponseError } from '@shared/core/response/api-response-error';
 import { ResponseMetadata } from '@core/response/api-response-metadata';
 import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
@@ -49,20 +45,22 @@ export class OrdersController {
     public async list(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-    ): Promise<OrdersListResponse> {
-        return this.mediator.ask<GetOrdersQuery, OrdersListResponse>(
+    ): Promise<GetOrdersResponse> {
+        return this.mediator.ask<GetOrdersQuery, GetOrdersResponse>(
             new GetOrdersQuery(page, limit),
         );
     }
 
     @Get(':id')
     @Version('1')
-    @ApiNotFoundResponse({
-        description: 'Order not found',
-        type: ApiResponseError,
+    @ApiOkResponse({
+        description: 'Order found',
+        type: GetOrderByIdResponse,
     })
-    public async getById(@Param('id') id: string): Promise<OrderResponseDto> {
-        return this.mediator.ask<GetOrderByIdQuery, OrderResponseDto>(
+    public async getById(
+        @Param('id') id: string,
+    ): Promise<GetOrderByIdResponse> {
+        return this.mediator.ask<GetOrderByIdQuery, GetOrderByIdResponse>(
             new GetOrderByIdQuery(id),
         );
     }

@@ -14,7 +14,6 @@ import { AllExceptionsFilter } from '@shared/core/exception-filter';
         DatabaseModule.forRoot(),
         ConfigModule.forRoot({
             load: [configuration],
-            // TODO: Implementacion global temporal, la idea es luego agregar configuraciones de forma dinamica con el metodo .forFeature()
             isGlobal: true,
             cache: true,
         }),
