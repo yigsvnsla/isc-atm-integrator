@@ -1,6 +1,6 @@
 import { Order } from '@features/orders/domain/order';
 import { CreateOrderCommand } from './command';
-import { CreateOrderResponse } from './response';
+import { CreateOrderResponse } from './create-order.response.dto';
 
 export class CreateOrderMapper {
     public toDomain(command: CreateOrderCommand): Order {

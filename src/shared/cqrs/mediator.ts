@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import type { Command, CommandHandler } from '@cqrs/command';
 import type { Query, QueryHandler } from '@cqrs/query';
 
@@ -7,6 +8,7 @@ type QueryCtor<T extends Query<unknown>> = new (...args: never[]) => T;
 
 type AnyCommandHandler = CommandHandler<Command, unknown>;
 
+@Injectable()
 export class Mediator {
     private readonly commands = new Map<
         CommandCtor<Command>,

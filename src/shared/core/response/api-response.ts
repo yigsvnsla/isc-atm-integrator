@@ -1,5 +1,7 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { ResponseBuilder } from './api-response-builder';
-import { IApiResponseMetadata } from './api-response-metadata';
+import type { IApiResponseMetadata } from './api-response-metadata';
+import { ResponseMetadata } from './api-response-metadata';
 
 export interface IApiResponse<T> {
     readonly data: T;
@@ -7,10 +9,16 @@ export interface IApiResponse<T> {
 }
 
 export class Response<T> implements IApiResponse<T> {
-    public constructor(
-        public readonly data: T,
-        public readonly metadata: IApiResponseMetadata,
-    ) {}
+    @ApiProperty({ description: 'Response payload' })
+    public readonly data: T;
+
+    @ApiProperty({ type: () => ResponseMetadata, description: 'Response metadata' })
+    public readonly metadata: IApiResponseMetadata;
+
+    public constructor(data: T, metadata: IApiResponseMetadata) {
+        this.data = data;
+        this.metadata = metadata;
+    }
 
     public static builder<T>(): ResponseBuilder<T> {
         return new ResponseBuilder<T>();

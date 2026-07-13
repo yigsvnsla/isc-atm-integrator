@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -18,7 +18,8 @@
       "@shared/*": ["src/shared/*"],
       "@core/*": ["src/shared/core/*"],
       "@cqrs/*": ["src/shared/cqrs/*"],
-      "@features/*": ["src/features/*"]
+      "@features/*": ["src/features/*"],
+      "@infrastructure/*": ["src/infrastructure/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

@@ -1,24 +1,25 @@
+import { NotFoundException, Inject } from '@nestjs/common';
 import { QueryHandler } from '@cqrs/query';
-import { InMemoryOrderRepository } from '@features/orders/infrastructure/order.repository';
-import { Order } from '@features/orders/domain/order';
+import { ORDER_REPOSITORY } from '@features/orders/domain/order.repository';
+import type { IOrderRepository } from '@features/orders/domain/order.repository';
 import { GetOrderByIdQuery } from './query';
-import { NotFoundException } from '@nestjs/common';
+import { toOrderResponseDto } from '../../orders-response.dto';
+import type { OrderResponseDto } from '../../orders-response.dto';
 
-export class GetOrderByIdHandler implements QueryHandler<
-    GetOrderByIdQuery,
-    Order
-> {
-    public constructor(private readonly repository: InMemoryOrderRepository) {}
+export class GetOrderByIdHandler
+    implements QueryHandler<GetOrderByIdQuery, OrderResponseDto>
+{
+    public constructor(
+        @Inject(ORDER_REPOSITORY) private readonly repository: IOrderRepository,
+    ) {}
 
-    public async execute(query: GetOrderByIdQuery): Promise<Order> {
-        const order = await this.repository.findOneBy({ id: query.getId() });
+    public async execute(query: GetOrderByIdQuery): Promise<OrderResponseDto> {
+        const order = await this.repository.findById(query.getId());
         if (!order) {
-            // throw new NotFoundError('Order', query.getId());
-            // TODO: Use a custom exception filter to handle NotFoundError and convert it to a proper HTTP response
             throw new NotFoundException(
                 `Order with ID ${query.getId()} not found`,
             );
         }
-        return order;
+        return toOrderResponseDto(order);
     }
 }

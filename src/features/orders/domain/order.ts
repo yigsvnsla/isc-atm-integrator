@@ -1,6 +1,3 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
-
-@Entity()
 export class OrderBuilder {
     private id: string;
     private customerName: string;
@@ -44,35 +41,25 @@ export class OrderBuilder {
     }
 }
 
-@Entity()
 export class Order {
-    @PrimaryColumn()
-    public id!: string;
-
-    @Column()
-    public customerName!: string;
-
-    @Column()
-    public amount!: number;
-
-    @Column()
-    public status!: 'pending' | 'confirmed' | 'cancelled';
-
-    @Column()
-    public createdAt!: Date;
+    public readonly id: string;
+    public readonly customerName: string;
+    public readonly amount: number;
+    public readonly status: 'pending' | 'confirmed' | 'cancelled';
+    public readonly createdAt: Date;
 
     public constructor(
-        id?: string,
-        customerName?: string,
-        amount?: number,
-        status?: 'pending' | 'confirmed' | 'cancelled',
-        createdAt?: Date,
+        id: string,
+        customerName: string,
+        amount: number,
+        status: 'pending' | 'confirmed' | 'cancelled',
+        createdAt: Date,
     ) {
-        this.id = id as string;
-        this.customerName = customerName as string;
-        this.amount = amount as number;
-        this.status = status as 'pending' | 'confirmed' | 'cancelled';
-        this.createdAt = createdAt as Date;
+        this.id = id;
+        this.customerName = customerName;
+        this.amount = amount;
+        this.status = status;
+        this.createdAt = createdAt;
     }
 
     public static get Builder(): OrderBuilder {

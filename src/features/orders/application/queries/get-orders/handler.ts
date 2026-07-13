@@ -1,13 +1,50 @@
+import { HttpStatus, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { QueryHandler } from '@cqrs/query';
-import { InMemoryOrderRepository } from '@features/orders/infrastructure/order.repository';
-import { Order } from '@features/orders/domain/order';
+import { ORDER_REPOSITORY } from '@features/orders/domain/order.repository';
+import type { IOrderRepository } from '@features/orders/domain/order.repository';
 import { GetOrdersQuery } from './query';
+import { OrdersListResponse } from '../../orders-list-response.dto';
+import { toOrderResponseDto } from '../../orders-response.dto';
+import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
+import { ResponseMetadataPaginationBuilder } from '@core/response/api-response-metadata-pagination-builder';
+import { ResponseMetadataBuilder } from '@core/response/api-response-metadata-builder';
 
-export class GetOrdersHandler implements QueryHandler<GetOrdersQuery, Order[]> {
-    public constructor(private readonly repository: InMemoryOrderRepository) {}
+export class GetOrdersHandler implements QueryHandler<
+    GetOrdersQuery,
+    OrdersListResponse
+> {
+    public constructor(
+        @Inject(ORDER_REPOSITORY) private readonly repository: IOrderRepository,
+        @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    ) {}
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public async execute(query: GetOrdersQuery): Promise<Order[]> {
-        return this.repository.find();
+    public async execute(query: GetOrdersQuery): Promise<OrdersListResponse> {
+        const cacheKey = `orders:p${query.page}:l${query.limit}`;
+        const cached = await this.cache.get<OrdersListResponse>(cacheKey);
+        if (cached) return cached;
+
+        const result = await this.repository.findAll(query.page, query.limit);
+
+        const pagination = new ResponseMetadataPaginationBuilder()
+            .setPage(result.page)
+            .setLimit(result.limit)
+            .setTotalItems(result.total)
+            .build() as ResponseMetadataPagination;
+        const metadata = new ResponseMetadataBuilder()
+            .setStatusCode(HttpStatus.OK)
+            .setMessage('OK')
+            .setPagination(pagination)
+            .build();
+
+        const response = new OrdersListResponse(
+            result.items.map(toOrderResponseDto),
+            metadata,
+        );
+
+        await this.cache.set(cacheKey, response, 60_000);
+
+        return response;
     }
 }

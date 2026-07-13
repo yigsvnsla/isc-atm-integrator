@@ -2,43 +2,65 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import configuration from '@infrastructure/config/configuration';
+import swaggerMetadata from './metadata';
+
+// TODO: mover este tipado a donde corresponde, ya que genera una dependecia directa del modulo de arranque
+export type AppConfigService = ConfigService<
+    ReturnType<typeof configuration>,
+    true
+>;
 
 async function bootstrap() {
-    const API_PREFIX = process.env.API_PREFIX ?? '/api';
-
     const app = await NestFactory.create(AppModule);
 
-    app.setGlobalPrefix(API_PREFIX);
-    app.useGlobalPipes(
-        new ValidationPipe({
-            transform: true,
-            whitelist: true,
-            forbidNonWhitelisted: true,
-        }),
-    );
+    const configService = app.get<AppConfigService>(ConfigService);
 
-    const config = new DocumentBuilder()
+    const appPort = configService.get('server.port', { infer: true });
+    const appPrefix = configService.get('server.prefix', { infer: true });
+
+    const validationPipe = new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+    });
+
+    app.setGlobalPrefix(appPrefix);
+    app.useGlobalPipes(validationPipe);
+    app.enableVersioning({
+        type: VersioningType.HEADER,
+        header: 'x-api-version',
+    });
+
+    await SwaggerModule.loadPluginMetadata(swaggerMetadata);
+
+    const swaggerConfig = new DocumentBuilder()
         .setTitle('ISC ATM Integrator')
         .setDescription('Orders API — CQRS manual mediator demo')
         .setVersion('1.0')
-        .addTag('orders')
-        .addServer(API_PREFIX, 'Local API with prefix')
+        .addTag('Orders')
+        .addServer(appPrefix, 'Local API with prefix')
+        .addGlobalParameters({
+            name: 'x-api-version',
+            in: 'header',
+            description: 'API version',
+            required: true,
+            schema: { type: 'string', default: '1' },
+        })
         .build();
 
-    const document = SwaggerModule.createDocument(app, config, {
+    const document = SwaggerModule.createDocument(app, swaggerConfig, {
         ignoreGlobalPrefix: true,
     });
 
     app.use(
-        `${API_PREFIX}/reference`,
-        apiReference({
-            theme: 'purple',
-            content: document,
-        }),
+        `${appPrefix}/reference`,
+        apiReference({ theme: 'purple', content: document }),
     );
 
-    await app.listen(process.env.PORT ?? 7000);
+    await app.listen(appPort);
 }
 
 void bootstrap();

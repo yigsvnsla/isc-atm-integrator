@@ -7,12 +7,7 @@ import {
 export interface IApiResponseMetadataPaginationBuilder extends IBuilder<IApiResponseMetadataPagination> {
     setPage(page: number): IApiResponseMetadataPaginationBuilder;
     setLimit(limit: number): IApiResponseMetadataPaginationBuilder;
-    setTotalPages(totalPages: number): IApiResponseMetadataPaginationBuilder;
     setTotalItems(totalItems: number): IApiResponseMetadataPaginationBuilder;
-    setHasNextPage(hasNextPage: boolean): IApiResponseMetadataPaginationBuilder;
-    setHasPreviousPage(
-        hasPreviousPage: boolean,
-    ): IApiResponseMetadataPaginationBuilder;
 }
 
 export class ResponseMetadataPaginationBuilder implements IApiResponseMetadataPaginationBuilder {
@@ -33,13 +28,6 @@ export class ResponseMetadataPaginationBuilder implements IApiResponseMetadataPa
         return this;
     }
 
-    public setTotalPages(
-        totalPages: number,
-    ): IApiResponseMetadataPaginationBuilder {
-        this.totalPages = totalPages;
-        return this;
-    }
-
     public setTotalItems(
         totalItems: number,
     ): IApiResponseMetadataPaginationBuilder {
@@ -54,21 +42,17 @@ export class ResponseMetadataPaginationBuilder implements IApiResponseMetadataPa
         return this;
     }
 
-    public setHasPreviousPage(
-        hasPreviousPage: boolean,
-    ): IApiResponseMetadataPaginationBuilder {
-        this.hasPreviousPage = hasPreviousPage;
-        return this;
-    }
-
     public build(): IApiResponseMetadataPagination {
+        this.totalPages = Math.ceil(this.totalItems / this.limit);
+        this.hasNextPage = this.page < this.totalPages;
+        this.hasPreviousPage = this.page > 1;
         return new ResponseMetadataPagination(
             this.page,
             this.limit,
             this.totalPages,
             this.totalItems,
-            this.hasNextPage,
             this.hasPreviousPage,
+            this.hasNextPage,
         );
     }
 }
