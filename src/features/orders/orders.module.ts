@@ -12,12 +12,14 @@ import { Mediator } from '@shared/cqrs/mediator';
 import { CreateOrderCommand } from './application/commands/create-order/command';
 import { GetOrdersQuery } from './application/queries/get-orders/query';
 import { GetOrderByIdQuery } from './application/queries/get-order-by-id/query';
+import { CacheResultService } from '@shared/core/cache/cache-result.service';
 
 @Module({
     imports: [TypeOrmModule.forFeature([OrderEntity]), MediatorModule],
     controllers: [OrdersController],
     providers: [
         { provide: ORDER_REPOSITORY, useClass: TypeormOrderRepository },
+        CacheResultService,
         CreateOrderHandler,
         GetOrdersHandler,
         GetOrderByIdHandler,

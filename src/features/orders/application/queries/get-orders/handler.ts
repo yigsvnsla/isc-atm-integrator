@@ -1,14 +1,12 @@
 import { HttpStatus, Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
 import { QueryHandler } from '@cqrs/query';
 import { ORDER_REPOSITORY } from '@features/orders/domain/order.repository';
 import type { IOrderRepository } from '@features/orders/domain/order.repository';
 import { GetOrdersQuery } from './query';
 import { GetOrdersResponse } from './response.dto';
-// import { toGetOrderByIdResponse } from '../get-order-by-id/response';
 import { ResponseMetadataPaginationBuilder } from '@core/response/api-response-metadata-pagination-builder';
 import { ResponseMetadataBuilder } from '@core/response/api-response-metadata-builder';
+import { CacheResultService } from '@core/cache/cache-result.service';
 
 export class GetOrdersHandler implements QueryHandler<
     GetOrdersQuery,
@@ -16,13 +14,17 @@ export class GetOrdersHandler implements QueryHandler<
 > {
     public constructor(
         @Inject(ORDER_REPOSITORY) private readonly repository: IOrderRepository,
-        @Inject(CACHE_MANAGER) private readonly cache: Cache,
+        private readonly cacheResult: CacheResultService,
     ) {}
 
     public async execute(query: GetOrdersQuery): Promise<GetOrdersResponse> {
         const cacheKey = `orders:p${query.page}:l${query.limit}`;
-        const cached = await this.cache.get<GetOrdersResponse>(cacheKey);
-        if (cached) return cached;
+
+        const cacheResult =
+            await this.cacheResult.get<GetOrdersResponse>(cacheKey);
+        if (cacheResult.isSuccess()) {
+            return cacheResult.getValue();
+        }
 
         const result = await this.repository.findAll(query.page, query.limit);
 
@@ -38,10 +40,9 @@ export class GetOrdersHandler implements QueryHandler<
             .setPagination(pagination)
             .build();
 
-        // TODO: result.items -> data Response
         const response = new GetOrdersResponse([], metadata);
 
-        await this.cache.set(cacheKey, response);
+        void this.cacheResult.set(cacheKey, response);
 
         return response;
     }

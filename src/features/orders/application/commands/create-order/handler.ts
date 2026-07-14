@@ -1,6 +1,4 @@
 import { HttpStatus, Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
 import { CommandHandler } from '@cqrs/command';
 import { CreateOrderCommand } from './command';
 import { CreateOrderResponse } from './response.dto';
@@ -9,6 +7,7 @@ import { ORDER_REPOSITORY } from '@features/orders/domain/order.repository';
 import type { IOrderRepository } from '@features/orders/domain/order.repository';
 import { Order, ORDER_STATUS } from '@features/orders/domain/order';
 import { ResponseMetadataBuilder } from '@shared/core/response/api-response-metadata-builder';
+import { CacheResultService } from '@core/cache/cache-result.service';
 
 export class CreateOrderHandler implements CommandHandler<
     CreateOrderCommand,
@@ -17,9 +16,10 @@ export class CreateOrderHandler implements CommandHandler<
     public constructor(
         // private readonly mapper: CreateOrderMapper,
         @Inject(ORDER_REPOSITORY) private readonly repository: IOrderRepository,
-        @Inject(CACHE_MANAGER) private readonly cache: Cache,
+        private readonly cacheResult: CacheResultService,
     ) {}
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     public async execute(
         command: CreateOrderCommand,
     ): Promise<CreateOrderResponse> {
@@ -27,7 +27,7 @@ export class CreateOrderHandler implements CommandHandler<
         console.log(command);
 
         // await this.repository.save(order);
-        await this.cache.clear();
+        void this.cacheResult.clear();
 
         const result = Order.Builder.setId(crypto.randomUUID())
             .setCustomerName(command.name)

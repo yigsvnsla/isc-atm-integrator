@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '@infrastructure/config/configuration';
@@ -7,7 +7,9 @@ import { CacheModule } from './infrastructure/cache/cache.module';
 import { MediatorModule } from '@cqrs/mediator.module';
 import { OrdersModule } from './features/orders/orders.module';
 import { NotificationsModule } from '@features/notifications/notifications.module';
-import { AllExceptionsFilter } from '@shared/core/exception-filter';
+import { AllExceptionsFilter } from '@shared/core/exceptions/exception-filter';
+import { RequestIdMiddleware } from '@shared/core/middleware/request-id.middleware';
+import { HealthModule } from '@infrastructure/health/health.module';
 
 @Module({
     imports: [
@@ -21,6 +23,7 @@ import { AllExceptionsFilter } from '@shared/core/exception-filter';
         MediatorModule,
         OrdersModule,
         NotificationsModule,
+        HealthModule,
     ],
     providers: [
         {
@@ -29,4 +32,8 @@ import { AllExceptionsFilter } from '@shared/core/exception-filter';
         },
     ],
 })
-export class AppModule {}
+export class AppModule {
+    public configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(RequestIdMiddleware).forRoutes('*');
+    }
+}
