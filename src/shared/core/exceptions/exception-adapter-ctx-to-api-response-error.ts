@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import type { ClsService } from 'nestjs-cls';
 import { IApiResponseError } from '../response/api-response-error';
 import { AbstractHttpAdapter } from '@nestjs/core';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
-import { getRequestId } from '../middleware/request-context';
 
 export class HttpExceptionToApiResponseErrorAdapter implements IApiResponseError {
     public readonly id: string;
@@ -17,29 +17,14 @@ export class HttpExceptionToApiResponseErrorAdapter implements IApiResponseError
         ctx: HttpArgumentsHost,
         exception: HttpException,
         httpAdapter: AbstractHttpAdapter<any, any, any>,
+        cls: ClsService,
     ) {
-        //eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        this.path = httpAdapter.getRequestUrl(ctx.getRequest());
+        this.id = cls.getId() || 'unknown';
+        this.path = String(httpAdapter.getRequestUrl(ctx.getRequest()));
         this.code = HttpStatus[exception.getStatus()];
         this.cause = exception.cause;
         this.status = exception.getStatus();
         this.message = exception.message;
         this.timestamp = new Date().toISOString();
-        this.id = this.resolveRequestId(ctx);
-    }
-
-    private resolveRequestId(ctx: HttpArgumentsHost): string {
-        const requestId = getRequestId();
-        if (requestId) return requestId;
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const req = ctx.getRequest();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (req?.headers?.['x-request-id']) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
-            return req.headers['x-request-id'];
-        }
-
-        return 'unknown';
     }
 }

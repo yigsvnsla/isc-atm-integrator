@@ -1,20 +1,17 @@
 import { Controller, Get } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
 import {
     HealthCheck,
     HealthCheckService,
     TypeOrmHealthIndicator,
-    type HealthIndicatorResult,
 } from '@nestjs/terminus';
+import { RedisHealthIndicator } from './redis.health';
 
 @Controller('health')
 export class HealthController {
     constructor(
         private readonly health: HealthCheckService,
         private readonly db: TypeOrmHealthIndicator,
-        @Inject(CACHE_MANAGER) private readonly cache: Cache,
+        private readonly redis: RedisHealthIndicator,
     ) {}
 
     @Get()
@@ -22,8 +19,7 @@ export class HealthController {
     public check() {
         return this.health.check([
             () => this.db.pingCheck('database'),
-            async (): Promise<HealthIndicatorResult> =>
-                this.cachePingCheck('redis'),
+            () => this.redis.isHealthy(),
         ]);
     }
 
@@ -32,8 +28,7 @@ export class HealthController {
     public readiness() {
         return this.health.check([
             () => this.db.pingCheck('database'),
-            async (): Promise<HealthIndicatorResult> =>
-                this.cachePingCheck('redis'),
+            () => this.redis.isHealthy(),
         ]);
     }
 
@@ -41,17 +36,5 @@ export class HealthController {
     @HealthCheck()
     public liveness() {
         return this.health.check([]);
-    }
-
-    private async cachePingCheck(key: string): Promise<HealthIndicatorResult> {
-        try {
-            await this.cache.set('health:ping', 'ok', 5_000);
-            await this.cache.get('health:ping');
-            return { [key]: { status: 'up' } };
-        } catch {
-            return {
-                [key]: { status: 'down', message: 'Redis unreachable' },
-            };
-        }
     }
 }

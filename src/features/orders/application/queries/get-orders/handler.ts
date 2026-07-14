@@ -1,5 +1,11 @@
 import { HttpStatus, Inject } from '@nestjs/common';
-import { QueryHandler } from '@cqrs/query';
+import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import {
+    ResilienceCommand,
+    CircuitBreakerStrategy,
+    RetryStrategy,
+    TimeoutStrategy,
+} from 'nestjs-resilience';
 import { ORDER_REPOSITORY } from '@features/orders/domain/order.repository';
 import type { IOrderRepository } from '@features/orders/domain/order.repository';
 import { GetOrdersQuery } from './query';
@@ -8,16 +14,27 @@ import { ResponseMetadataPaginationBuilder } from '@core/response/api-response-m
 import { ResponseMetadataBuilder } from '@core/response/api-response-metadata-builder';
 import { CacheResultService } from '@core/cache/cache-result.service';
 
-export class GetOrdersHandler implements QueryHandler<
-    GetOrdersQuery,
-    GetOrdersResponse
-> {
+@QueryHandler(GetOrdersQuery)
+export class GetOrdersHandler
+    extends ResilienceCommand
+    implements IQueryHandler<GetOrdersQuery, GetOrdersResponse>
+{
     public constructor(
         @Inject(ORDER_REPOSITORY) private readonly repository: IOrderRepository,
         private readonly cacheResult: CacheResultService,
-    ) {}
+    ) {
+        super([
+            new CircuitBreakerStrategy({
+                requestVolumeThreshold: 3,
+                sleepWindowInMilliseconds: 10_000,
+                errorThresholdPercentage: 50,
+            }),
+            new TimeoutStrategy(5000),
+            new RetryStrategy({ maxRetries: 3 }),
+        ]);
+    }
 
-    public async execute(query: GetOrdersQuery): Promise<GetOrdersResponse> {
+    public async run(query: GetOrdersQuery): Promise<GetOrdersResponse> {
         const cacheKey = `orders:p${query.page}:l${query.limit}`;
 
         const cacheResult =

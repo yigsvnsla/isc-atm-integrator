@@ -1,9 +1,11 @@
-import { Order } from '@features/orders/domain/order';
-import { Query } from '@cqrs/query';
+import { Query } from '@nestjs/cqrs';
+import type { GetOrdersResponse } from './response.dto';
 
-export class GetOrdersQuery implements Query<Order[]> {
+export class GetOrdersQuery extends Query<GetOrdersResponse> {
     public constructor(
         public readonly page: number = 1,
         public readonly limit: number = 10,
-    ) {}
+    ) {
+        super();
+    }
 }

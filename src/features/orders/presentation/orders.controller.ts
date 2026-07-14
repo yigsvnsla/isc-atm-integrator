@@ -10,9 +10,15 @@ import {
     ParseIntPipe,
     Post,
     Query,
+    UseInterceptors,
     Version,
 } from '@nestjs/common';
-import { Mediator } from '@cqrs/mediator';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import {
+    ResilienceInterceptor,
+    ThrottleStrategy,
+    TimeoutStrategy,
+} from 'nestjs-resilience';
 import { CreateOrderCommand } from '../application/commands/create-order/command';
 import { CreateOrderResponse } from '../application/commands/create-order/response.dto';
 import { GetOrdersQuery } from '../application/queries/get-orders/query';
@@ -23,11 +29,20 @@ import { ApiResponseError } from '@shared/core/response/api-response-error';
 import { ResponseMetadata } from '@core/response/api-response-metadata';
 import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
 
+const ControllerResilience = ResilienceInterceptor(
+    new ThrottleStrategy({ ttl: 60_000, limit: 30 }),
+    new TimeoutStrategy(10_000),
+);
+
 @ApiTags('Orders')
 @ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
 @Controller('orders')
+@UseInterceptors(ControllerResilience)
 export class OrdersController {
-    constructor(private readonly mediator: Mediator) {}
+    constructor(
+        private readonly commandBus: CommandBus,
+        private readonly queryBus: QueryBus,
+    ) {}
 
     @Post()
     @Version('1')
@@ -35,9 +50,7 @@ export class OrdersController {
     public async create(
         @Body() command: CreateOrderCommand,
     ): Promise<CreateOrderResponse> {
-        return this.mediator.send<CreateOrderCommand, CreateOrderResponse>(
-            command,
-        );
+        return this.commandBus.execute<CreateOrderResponse>(command);
     }
 
     @Get()
@@ -46,7 +59,7 @@ export class OrdersController {
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     ): Promise<GetOrdersResponse> {
-        return this.mediator.ask<GetOrdersQuery, GetOrdersResponse>(
+        return this.queryBus.execute<GetOrdersResponse>(
             new GetOrdersQuery(page, limit),
         );
     }
@@ -60,7 +73,7 @@ export class OrdersController {
     public async getById(
         @Param('id') id: string,
     ): Promise<GetOrderByIdResponse> {
-        return this.mediator.ask<GetOrderByIdQuery, GetOrderByIdResponse>(
+        return this.queryBus.execute<GetOrderByIdResponse>(
             new GetOrderByIdQuery(id),
         );
     }

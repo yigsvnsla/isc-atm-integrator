@@ -1,18 +1,26 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { ClsModule } from 'nestjs-cls';
+import { ResilienceModule } from 'nestjs-resilience';
 import configuration from '@infrastructure/config/configuration';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
-import { MediatorModule } from '@cqrs/mediator.module';
 import { OrdersModule } from './features/orders/orders.module';
 import { NotificationsModule } from '@features/notifications/notifications.module';
 import { AllExceptionsFilter } from '@shared/core/exceptions/exception-filter';
-import { RequestIdMiddleware } from '@shared/core/middleware/request-id.middleware';
 import { HealthModule } from '@infrastructure/health/health.module';
 
 @Module({
     imports: [
+        ClsModule.forRoot({
+            global: true,
+            middleware: { mount: false, debug: false },
+        }),
+        // TODO: ResilienceModule global por ahora. Evaluar mover a módulos
+        // individuales (ej. OrdersModule) cuando se necesiten políticas
+        // diferentes por feature o se quiera limitar el scope.
+        ResilienceModule.forRoot({}),
         DatabaseModule.forRoot(),
         ConfigModule.forRoot({
             load: [configuration],
@@ -20,7 +28,6 @@ import { HealthModule } from '@infrastructure/health/health.module';
             cache: true,
         }),
         CacheModule,
-        MediatorModule,
         OrdersModule,
         NotificationsModule,
         HealthModule,
@@ -32,8 +39,4 @@ import { HealthModule } from '@infrastructure/health/health.module';
         },
     ],
 })
-export class AppModule {
-    public configure(consumer: MiddlewareConsumer): void {
-        consumer.apply(RequestIdMiddleware).forRoutes('*');
-    }
-}
+export class AppModule {}

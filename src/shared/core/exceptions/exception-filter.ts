@@ -5,6 +5,7 @@ import {
     HttpException,
     Logger,
 } from '@nestjs/common';
+import { ClsService } from 'nestjs-cls';
 import { HttpExceptionToApiResponseErrorAdapter } from './exception-adapter-ctx-to-api-response-error';
 import { HttpAdapterHost } from '@nestjs/core';
 import type { Response } from 'express';
@@ -13,7 +14,10 @@ import type { Response } from 'express';
 export class AllExceptionsFilter implements ExceptionFilter {
     private readonly logger = new Logger(AllExceptionsFilter.name);
 
-    constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+    constructor(
+        private readonly httpAdapterHost: HttpAdapterHost,
+        private readonly cls: ClsService,
+    ) {}
 
     public catch(exception: HttpException, host: ArgumentsHost): void {
         const ctx = host.switchToHttp();
@@ -24,6 +28,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             ctx,
             exception,
             httpAdapter,
+            this.cls,
         );
 
         this.logger.error(
