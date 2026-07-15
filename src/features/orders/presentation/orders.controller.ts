@@ -31,7 +31,7 @@ import { ResponseMetadataPagination } from '@core/response/api-response-metadata
 
 const ControllerResilience = ResilienceInterceptor(
     new ThrottleStrategy({ ttl: 60_000, limit: 30 }),
-    new TimeoutStrategy(10_000),
+    new TimeoutStrategy(30_000),
 );
 
 @ApiTags('Orders')

@@ -3,12 +3,11 @@ import {
     Catch,
     ExceptionFilter,
     HttpException,
+    HttpStatus,
     Logger,
 } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
-import { HttpExceptionToApiResponseErrorAdapter } from './exception-adapter-ctx-to-api-response-error';
 import { HttpAdapterHost } from '@nestjs/core';
-import type { Response } from 'express';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -19,22 +18,53 @@ export class AllExceptionsFilter implements ExceptionFilter {
         private readonly cls: ClsService,
     ) {}
 
-    public catch(exception: HttpException, host: ArgumentsHost): void {
+    public catch(exception: unknown, host: ArgumentsHost): void {
         const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
         const httpAdapter = this.httpAdapterHost.httpAdapter;
 
-        const apiResponseError = new HttpExceptionToApiResponseErrorAdapter(
-            ctx,
-            exception,
-            httpAdapter,
-            this.cls,
-        );
+        const httpException = this.toHttpException(exception);
+
+        const responseBody = {
+            id: this.cls.getId() || 'unknown',
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            path: httpAdapter.getRequestUrl(ctx.getRequest()),
+            code: HttpStatus[httpException.getStatus()],
+            status: httpException.getStatus(),
+            message: httpException.message,
+            cause: httpException.cause,
+            timestamp: new Date().toISOString(),
+        };
 
         this.logger.error(
-            `Exception caught: ${JSON.stringify(exception.getResponse())}`,
+            `Exception caught: ${JSON.stringify(responseBody)}`,
+            exception instanceof Error ? exception.stack : undefined,
         );
-        this.logger.debug(`Exception trace: ${exception.stack}`);
-        httpAdapter.reply(response, apiResponseError, apiResponseError.status);
+
+        httpAdapter.reply(
+            ctx.getResponse(),
+            responseBody,
+            httpException.getStatus(),
+        );
+    }
+
+    private toHttpException(exception: unknown): HttpException {
+        if (exception instanceof HttpException) {
+            return exception;
+        }
+
+        if (exception instanceof Error) {
+            return new HttpException(
+                {
+                    message: exception.message,
+                    cause: exception.cause,
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+
+        return new HttpException(
+            'Internal server error',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+        );
     }
 }

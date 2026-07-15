@@ -29,7 +29,7 @@ export class GetOrdersHandler
                 sleepWindowInMilliseconds: 10_000,
                 errorThresholdPercentage: 50,
             }),
-            new TimeoutStrategy(5000),
+            new TimeoutStrategy(20_000),
             new RetryStrategy({ maxRetries: 3 }),
         ]);
     }
