@@ -7,6 +7,9 @@ import configuration from '@infrastructure/config/configuration';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
 import { OrdersModule } from './features/orders/orders.module';
+import { AgreementsModule } from './features/agreements/agreements.module';
+import { AccountsModule } from './features/accounts/accounts.module';
+import { TransactionsModule } from './features/transactions/transactions.module';
 import { NotificationsModule } from '@features/notifications/notifications.module';
 import { AllExceptionsFilter } from '@shared/core/exceptions/exception-filter';
 import { HealthModule } from '@infrastructure/health/health.module';
@@ -29,6 +32,9 @@ import { HealthModule } from '@infrastructure/health/health.module';
         }),
         CacheModule,
         OrdersModule,
+        AgreementsModule,
+        AccountsModule,
+        TransactionsModule,
         NotificationsModule,
         HealthModule,
     ],

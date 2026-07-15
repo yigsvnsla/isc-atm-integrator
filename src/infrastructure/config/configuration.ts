@@ -1,4 +1,8 @@
 export default () => ({
+    features: {
+        validateBalance: process.env.FEATURE_VALIDATE_BALANCE !== 'false',
+    },
+
     app: {
         isDevMode: process.env.NODE_ENV === 'development',
     },
