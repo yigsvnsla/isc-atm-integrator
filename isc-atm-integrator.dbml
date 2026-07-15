@@ -1,0 +1,98 @@
+Project {
+    database_type: 'PostgreSql'
+    Note: 'ATM integration layer — routes transactions between ATMs and financial institutions'
+}
+
+Enum ACCOUNT_TYPE {
+    SAVINGS
+    CHECKING
+}
+
+Enum ACCOUNT_STATE {
+    ACTIVE
+    INACTIVE
+}
+
+Enum TRANSACTION_OPERATION {
+    WITHDRAWAL
+    DEPOSIT
+    TRANSFER
+    BALANCE_INQUIRY
+    PIN_CHANGE
+    REVERSAL
+    MINI_STATEMENT
+}
+
+Enum TRANSACTION_TYPE {
+    DEBIT
+    CREDIT
+}
+
+Enum TRANSACTION_STATE {
+    PENDING
+    SUCCESS
+    CANCELLED
+}
+
+Enum AGREEMENT_STATE {
+    ACTIVE
+    INACTIVE
+}
+
+Table agreement {
+    Note: 'At migration level use: CREATE UNIQUE INDEX uq_agreement_reference ON agreement (reference) WHERE deleted_at IS NULL'
+
+    id         UUID             [primary key, not null, note: 'UUID of the agreement']
+    name       TEXT             [not null, note: 'financial institution or network name']
+    reference  TEXT             [unique, not null, note: 'agreement identifier']
+
+    state      AGREEMENT_STATE  [not null]
+
+    created_at TIMESTAMP        [not null]
+    updated_at TIMESTAMP        [not null]
+    deleted_at TIMESTAMP
+
+    Indexes {
+        (reference) [unique, name: 'uq_agreement_reference']
+    }
+}
+
+Table account {
+    Note: 'At migration level use: CREATE UNIQUE INDEX uq_account_reference ON account (reference) WHERE deleted_at IS NULL'
+
+    id            UUID          [primary key, not null, note: 'UUID of the account']
+    reference     TEXT          [unique, not null, note: 'account number']
+    type          ACCOUNT_TYPE  [not null]
+    balance       INTEGER       [not null, note: 'available balance in cents']
+    state         ACCOUNT_STATE [not null]
+
+    agreement_id  UUID          [ref: > agreement.id, not null, note: 'FK to the financial institution']
+
+    created_at    TIMESTAMP     [not null]
+    updated_at    TIMESTAMP     [not null]
+    deleted_at    TIMESTAMP
+
+    Indexes {
+        (reference) [unique, name: 'uq_account_reference']
+    }
+}
+
+Table transaction {
+    id          UUID                    [primary key, not null]
+    amount      INTEGER                 [note: 'amount in cents, NULL for non-financial operations']
+    operation   TRANSACTION_OPERATION   [not null, note: 'ATM operation performed']
+    type        TRANSACTION_TYPE        [note: 'DEBIT or CREDIT for reconciliation, NULL for non-financial ops']
+    state       TRANSACTION_STATE       [not null, note: 'processing lifecycle']
+    description TEXT                    [not null]
+
+    account_id    UUID                  [ref: > account.id, not null]
+    correlation_id UUID                 [note: 'shared UUID linking related transactions across accounts/entities']
+
+    created_at  TIMESTAMP               [not null]
+    updated_at  TIMESTAMP               [not null]
+    deleted_at  TIMESTAMP
+}
+
+Ref transaction_correlation {
+    transaction.correlation_id > transaction.id
+}

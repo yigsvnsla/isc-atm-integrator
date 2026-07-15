@@ -29,15 +29,15 @@ import { ApiResponseError } from '@shared/core/response/api-response-error';
 import { ResponseMetadata } from '@core/response/api-response-metadata';
 import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
 
-const ControllerResilience = ResilienceInterceptor(
-    new ThrottleStrategy({ ttl: 60_000, limit: 30 }),
-    new TimeoutStrategy(30_000),
-);
-
 @ApiTags('Orders')
 @ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
 @Controller('orders')
-@UseInterceptors(ControllerResilience)
+@UseInterceptors(
+    ResilienceInterceptor(
+        new ThrottleStrategy({ ttl: 60_000, limit: 30 }),
+        new TimeoutStrategy(30_000),
+    ),
+)
 export class OrdersController {
     constructor(
         private readonly commandBus: CommandBus,

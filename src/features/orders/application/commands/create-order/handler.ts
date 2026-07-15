@@ -41,7 +41,6 @@ export class CreateOrderHandler
         command: CreateOrderCommand,
     ): Promise<CreateOrderResponse> {
         // const order = this.mapper.toDomain(command);
-        console.log(command);
 
         // await this.repository.save(order);
         void this.cacheResult.clear();

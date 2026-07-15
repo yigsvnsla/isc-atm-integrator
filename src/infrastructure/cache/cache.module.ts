@@ -19,7 +19,15 @@ import { AppConfigService } from '@shared/core/types';
                 });
 
                 return {
-                    stores: [new KeyvRedis(redisHost)],
+                    stores: [
+                        new KeyvRedis({
+                            url: redisHost,
+                            socket: {
+                                connectTimeout: 5000,
+                                reconnectStrategy: false,
+                            },
+                        }),
+                    ],
                     ttl: cacheTTL,
                 };
             },
