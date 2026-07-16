@@ -20,8 +20,8 @@ export class TransactionEntity {
     @Column({ name: 'description' })
     public description: string;
 
-    @Column({ name: 'account_id' })
-    public accountId: string;
+    @Column({ name: 'bank_account_id' })
+    public bankAccountId: string;
 
     @Column({ name: 'correlation_id', nullable: true })
     public correlationId?: string;

@@ -21,8 +21,8 @@ import {
     TRANSACTION_TYPE,
     TRANSACTION_STATE,
 } from '@features/transactions/domain/transaction';
-import { ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repository';
-import type { IAccountRepository } from '@features/accounts/domain/account.repository';
+import { BANK_ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repository';
+import type { IBankAccountRepository } from '@features/accounts/domain/account.repository';
 import { ResponseMetadataBuilder } from '@shared/core/response/api-response-metadata-builder';
 import { CacheResultService } from '@core/cache/cache-result.service';
 import type { AppConfigService } from '@shared/core/types';
@@ -35,8 +35,8 @@ export class TransferHandler
     public constructor(
         @Inject(TRANSACTION_REPOSITORY)
         private readonly repository: ITransactionRepository,
-        @Inject(ACCOUNT_REPOSITORY)
-        private readonly accountRepository: IAccountRepository,
+        @Inject(BANK_ACCOUNT_REPOSITORY)
+        private readonly accountRepository: IBankAccountRepository,
         private readonly cacheResult: CacheResultService,
         private readonly configService: ConfigService,
     ) {
@@ -90,7 +90,7 @@ export class TransferHandler
             .setType(TRANSACTION_TYPE.DEBIT)
             .setState(TRANSACTION_STATE.PENDING)
             .setDescription(command.description)
-            .setAccountId(command.from_account_id)
+            .setBankAccountId(command.from_account_id)
             .setCorrelationId(correlationId)
             .setCreatedAt(now)
             .setUpdatedAt(now)
@@ -102,7 +102,7 @@ export class TransferHandler
             .setType(TRANSACTION_TYPE.CREDIT)
             .setState(TRANSACTION_STATE.PENDING)
             .setDescription(command.description)
-            .setAccountId(command.to_account_id)
+            .setBankAccountId(command.to_account_id)
             .setCorrelationId(correlationId)
             .setCreatedAt(now)
             .setUpdatedAt(now)

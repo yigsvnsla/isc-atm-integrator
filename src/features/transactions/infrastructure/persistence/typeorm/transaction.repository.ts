@@ -1,23 +1,19 @@
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { ITransactionRepository } from '@features/transactions/domain/transaction.repository';
-import { Transaction } from '@features/transactions/domain/transaction';
 import { TransactionEntity } from './transaction.entity';
 
-export class TypeormTransactionRepository implements ITransactionRepository {
-    public constructor(
-        @InjectRepository(TransactionEntity)
-        private readonly repo: Repository<TransactionEntity>,
-    ) {}
-
-    public async save(transaction: Transaction): Promise<TransactionEntity> {
-        const result = await this.repo.save(transaction);
-        return result;
+@Injectable()
+export class TransactionRepository
+    extends Repository<TransactionEntity>
+    implements ITransactionRepository
+{
+    constructor(private readonly dataSource: DataSource) {
+        super(TransactionEntity, dataSource.createEntityManager());
     }
 
     public async findById(id: string): Promise<TransactionEntity | null> {
-        const result = await this.repo.findOneBy({ id });
-        return result;
+        return this.findOneBy({ id });
     }
 
     public async findAll(
@@ -42,7 +38,7 @@ export class TypeormTransactionRepository implements ITransactionRepository {
         if (state) {
             where.state = state;
         }
-        const [items, total] = await this.repo.findAndCount({
+        const [items, total] = await this.findAndCount({
             skip,
             take: limit,
             where,

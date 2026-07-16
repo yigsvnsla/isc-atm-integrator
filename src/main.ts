@@ -1,12 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { ClsMiddleware } from 'nestjs-cls';
-import { randomUUID } from 'node:crypto';
 import { swaggerSetup } from '@infrastructure/config/swagger';
 import { validationsSetup } from '@infrastructure/config/validations';
 import { versioningSetup } from '@infrastructure/config/versioning';
 import { AppConfigService } from '@shared/core/types';
+import { corsSetup } from '@infrastructure/config/cors';
+import { asyncLocalStorageSetup } from '@infrastructure/config/async-local-storage';
+import { csrfSetup } from '@infrastructure/config/csrf';
+import { helmetSetup } from '@infrastructure/config/helmet';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -16,19 +18,14 @@ async function bootstrap() {
     const appPort = configService.get('server.port', { infer: true });
     const appPrefix = configService.get('server.prefix', { infer: true });
 
-    app.use(
-        new ClsMiddleware({
-            generateId: true,
-            idGenerator: (req) =>
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                (req.headers['x-request-id'] as string) || randomUUID(),
-        }).use,
-    );
-
-    app.setGlobalPrefix(appPrefix);
-    app.useGlobalPipes(validationsSetup);
     app.enableVersioning(versioningSetup);
     app.enableShutdownHooks();
+    app.enableCors(corsSetup(app));
+    app.setGlobalPrefix(appPrefix);
+    app.useGlobalPipes(validationsSetup);
+    csrfSetup(app);
+    helmetSetup(app);
+    app.use(asyncLocalStorageSetup());
     app.use(`${appPrefix}/reference`, await swaggerSetup(app));
 
     await app.listen(appPort);

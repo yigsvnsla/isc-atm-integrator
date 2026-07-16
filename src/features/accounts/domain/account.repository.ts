@@ -1,11 +1,11 @@
-import { AccountEntity } from '../infrastructure/persistence/typeorm/account.entity';
-import { Account } from './account';
+import { BankAccountEntity } from '../infrastructure/persistence/typeorm/account.entity';
+import { BankAccount } from './account';
 
-export const ACCOUNT_REPOSITORY = Symbol('ACCOUNT_REPOSITORY');
+export const BANK_ACCOUNT_REPOSITORY = Symbol('BANK_ACCOUNT_REPOSITORY');
 
-export interface IAccountRepository {
-    save(account: Account): Promise<AccountEntity>;
-    findById(id: string): Promise<AccountEntity | null>;
+export interface IBankAccountRepository {
+    save(account: BankAccount): Promise<BankAccountEntity>;
+    findById(id: string): Promise<BankAccountEntity | null>;
     findAll(
         page: number,
         limit: number,
@@ -13,7 +13,7 @@ export interface IAccountRepository {
         type?: string,
         state?: string,
     ): Promise<{
-        items: AccountEntity[];
+        items: BankAccountEntity[];
         total: number;
         page: number;
         limit: number;

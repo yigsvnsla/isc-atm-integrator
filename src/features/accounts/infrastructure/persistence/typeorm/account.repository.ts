@@ -1,23 +1,19 @@
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { IAccountRepository } from '@features/accounts/domain/account.repository';
-import { Account } from '@features/accounts/domain/account';
-import { AccountEntity } from './account.entity';
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
+import { IBankAccountRepository } from '@features/accounts/domain/account.repository';
+import { BankAccountEntity } from './account.entity';
 
-export class TypeormAccountRepository implements IAccountRepository {
-    public constructor(
-        @InjectRepository(AccountEntity)
-        private readonly repo: Repository<AccountEntity>,
-    ) {}
-
-    public async save(account: Account): Promise<AccountEntity> {
-        const result = await this.repo.save(account);
-        return result;
+@Injectable()
+export class BankAccountRepository
+    extends Repository<BankAccountEntity>
+    implements IBankAccountRepository
+{
+    constructor(private readonly dataSource: DataSource) {
+        super(BankAccountEntity, dataSource.createEntityManager());
     }
 
-    public async findById(id: string): Promise<AccountEntity | null> {
-        const result = await this.repo.findOneBy({ id });
-        return result;
+    public async findById(id: string): Promise<BankAccountEntity | null> {
+        return this.findOneBy({ id });
     }
 
     public async findAll(
@@ -38,7 +34,7 @@ export class TypeormAccountRepository implements IAccountRepository {
         if (state) {
             where.state = state;
         }
-        const [items, total] = await this.repo.findAndCount({
+        const [items, total] = await this.findAndCount({
             skip,
             take: limit,
             where,

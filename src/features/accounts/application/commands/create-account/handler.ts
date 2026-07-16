@@ -1,8 +1,4 @@
-import {
-    HttpStatus,
-    Inject,
-    NotFoundException,
-} from '@nestjs/common';
+import { HttpStatus, Inject, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
     ResilienceCommand,
@@ -12,9 +8,9 @@ import {
 } from 'nestjs-resilience';
 import { CreateAccountCommand } from './command';
 import { CreateAccountResponse } from './response.dto';
-import { ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repository';
-import type { IAccountRepository } from '@features/accounts/domain/account.repository';
-import { Account, ACCOUNT_STATE } from '@features/accounts/domain/account';
+import { BANK_ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repository';
+import type { IBankAccountRepository } from '@features/accounts/domain/account.repository';
+import { BankAccount, ACCOUNT_STATE } from '@features/accounts/domain/account';
 import { AGREEMENT_REPOSITORY } from '@features/agreements/domain/agreement.repository';
 import type { IAgreementRepository } from '@features/agreements/domain/agreement.repository';
 import { ResponseMetadataBuilder } from '@shared/core/response/api-response-metadata-builder';
@@ -26,8 +22,8 @@ export class CreateAccountHandler
     implements ICommandHandler<CreateAccountCommand>
 {
     public constructor(
-        @Inject(ACCOUNT_REPOSITORY)
-        private readonly repository: IAccountRepository,
+        @Inject(BANK_ACCOUNT_REPOSITORY)
+        private readonly repository: IBankAccountRepository,
         @Inject(AGREEMENT_REPOSITORY)
         private readonly agreementRepository: IAgreementRepository,
         private readonly cacheResult: CacheResultService,
@@ -57,7 +53,7 @@ export class CreateAccountHandler
 
         void this.cacheResult.clear();
 
-        const result = Account.Builder.setId(crypto.randomUUID())
+        const result = BankAccount.Builder.setId(crypto.randomUUID())
             .setReference(command.reference)
             .setType(command.type)
             .setBalance(0)

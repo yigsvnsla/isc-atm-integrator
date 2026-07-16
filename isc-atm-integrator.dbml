@@ -39,6 +39,16 @@ Enum AGREEMENT_STATE {
     INACTIVE
 }
 
+Enum USER_STATE {
+    ACTIVE
+    INACTIVE
+}
+
+Enum API_KEY_STATE {
+    ACTIVE
+    REVOKED
+}
+
 Table agreement {
     Note: 'At migration level use: CREATE UNIQUE INDEX uq_agreement_reference ON agreement (reference) WHERE deleted_at IS NULL'
 
@@ -57,10 +67,10 @@ Table agreement {
     }
 }
 
-Table account {
-    Note: 'At migration level use: CREATE UNIQUE INDEX uq_account_reference ON account (reference) WHERE deleted_at IS NULL'
+Table bank_account {
+    Note: 'At migration level use: CREATE UNIQUE INDEX uq_bank_account_reference ON bank_account (reference) WHERE deleted_at IS NULL'
 
-    id            UUID          [primary key, not null, note: 'UUID of the account']
+    id            UUID          [primary key, not null, note: 'UUID of the bank account']
     reference     TEXT          [unique, not null, note: 'account number']
     type          ACCOUNT_TYPE  [not null]
     balance       INTEGER       [not null, note: 'available balance in cents']
@@ -73,7 +83,7 @@ Table account {
     deleted_at    TIMESTAMP
 
     Indexes {
-        (reference) [unique, name: 'uq_account_reference']
+        (reference) [unique, name: 'uq_bank_account_reference']
     }
 }
 
@@ -85,12 +95,108 @@ Table transaction {
     state       TRANSACTION_STATE       [not null, note: 'processing lifecycle']
     description TEXT                    [not null]
 
-    account_id    UUID                  [ref: > account.id, not null]
+    bank_account_id UUID              [ref: > bank_account.id, not null]
     correlation_id UUID                 [note: 'shared UUID linking related transactions across accounts/entities']
 
     created_at  TIMESTAMP               [not null]
     updated_at  TIMESTAMP               [not null]
     deleted_at  TIMESTAMP
+}
+
+Table auth_user {
+    Note: 'At migration level use: CREATE UNIQUE INDEX uq_auth_user_email ON auth_user (email) WHERE deleted_at IS NULL'
+
+    id            UUID        [primary key, not null]
+    email         TEXT        [unique, not null, note: 'login identifier']
+    password_hash TEXT        [not null]
+    name          TEXT        [not null]
+    state         USER_STATE  [not null, default: 'ACTIVE']
+
+    agreement_id  UUID        [ref: > agreement.id, not null, note: 'FK to institution']
+
+    created_at    TIMESTAMP   [not null]
+    updated_at    TIMESTAMP   [not null]
+    deleted_at    TIMESTAMP
+
+    Indexes {
+        (email) [unique, name: 'uq_auth_user_email']
+    }
+}
+
+Table auth_refresh_token {
+    id           UUID       [primary key, not null]
+    token_hash   TEXT       [unique, not null, note: 'SHA-256 of opaque refresh token']
+    expires_at   TIMESTAMP  [not null]
+
+    user_id      UUID       [ref: > auth_user.id, not null]
+
+    created_at   TIMESTAMP  [not null]
+
+    Indexes {
+        (token_hash) [unique, name: 'uq_refresh_token_hash']
+        (user_id) [name: 'idx_refresh_token_user']
+    }
+}
+
+Table auth_profile {
+    id          UUID      [primary key, not null]
+    name        TEXT      [unique, not null, note: 'admin | operator | viewer | api_client']
+    description TEXT
+
+    created_at  TIMESTAMP [not null]
+    updated_at  TIMESTAMP [not null]
+}
+
+Table auth_permission {
+    id        UUID      [primary key, not null]
+    resource  TEXT      [not null, note: 'agreements | bank_accounts | transactions | api_keys | users']
+    action    TEXT      [not null, note: 'read | write | delete']
+    name      TEXT      [unique, not null, note: 'agreements:read']
+
+    created_at TIMESTAMP [not null]
+}
+
+Table user_profile {
+    user_id    UUID  [ref: > auth_user.id, not null]
+    profile_id UUID  [ref: > auth_profile.id, not null]
+
+    Indexes {
+        (user_id, profile_id) [pk]
+    }
+}
+
+Table profile_permission {
+    profile_id    UUID  [ref: > auth_profile.id, not null]
+    permission_id UUID  [ref: > auth_permission.id, not null]
+
+    Indexes {
+        (profile_id, permission_id) [pk]
+    }
+}
+
+Table api_key {
+    Note: 'At migration level use: CREATE UNIQUE INDEX uq_api_key_hash ON api_key (key_hash) WHERE deleted_at IS NULL'
+
+    id            UUID            [primary key, not null]
+    key_hash      TEXT            [unique, not null, note: 'SHA-256 of raw key']
+    prefix        TEXT            [not null, note: 'first 8 chars for display: sk-a1b2c3d4']
+    name          TEXT            [not null, note: 'human-readable label']
+    state         API_KEY_STATE   [not null, default: 'ACTIVE']
+
+    agreement_id  UUID            [ref: > agreement.id, not null]
+    created_by    UUID            [ref: > auth_user.id, not null]
+    profile_id    UUID            [ref: > auth_profile.id, not null, note: 'profile determines permissions']
+
+    expires_at    TIMESTAMP
+
+    created_at    TIMESTAMP       [not null]
+    updated_at    TIMESTAMP       [not null]
+    deleted_at    TIMESTAMP
+
+    Indexes {
+        (key_hash) [unique, name: 'uq_api_key_hash']
+        (agreement_id) [name: 'idx_api_key_agreement']
+    }
 }
 
 Ref transaction_correlation {

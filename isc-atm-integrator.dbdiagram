@@ -7,12 +7,6 @@
     "detailLevel": "All",
     "tablePositions": [
       {
-        "name": "account",
-        "schemaName": "public",
-        "x": 364,
-        "y": 629
-      },
-      {
         "name": "transaction",
         "schemaName": "public",
         "x": 838,
@@ -23,6 +17,12 @@
         "schemaName": "public",
         "x": -3,
         "y": 629
+      },
+      {
+        "name": "bank_account",
+        "schemaName": "public",
+        "x": 401.35029974284583,
+        "y": 613.845978792099
       }
     ],
     "tableGroupCollapseStates": [],

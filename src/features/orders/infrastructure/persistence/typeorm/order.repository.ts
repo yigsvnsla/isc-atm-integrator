@@ -1,28 +1,24 @@
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { IOrderRepository } from '@features/orders/domain/order.repository';
-import { Order } from '@features/orders/domain/order';
 import { OrderEntity } from './order.entity';
 
-export class TypeormOrderRepository implements IOrderRepository {
-    public constructor(
-        @InjectRepository(OrderEntity)
-        private readonly repo: Repository<OrderEntity>,
-    ) {}
-
-    public async save(order: Order): Promise<OrderEntity> {
-        const result = await this.repo.save(order);
-        return result;
+@Injectable()
+export class OrderRepository
+    extends Repository<OrderEntity>
+    implements IOrderRepository
+{
+    constructor(private readonly dataSource: DataSource) {
+        super(OrderEntity, dataSource.createEntityManager());
     }
 
     public async findById(id: string): Promise<OrderEntity | null> {
-        const result = await this.repo.findOneBy({ id });
-        return result;
+        return this.findOneBy({ id });
     }
 
     public async findAll(page: number, limit: number) {
         const skip = (page - 1) * limit;
-        const [items, total] = await this.repo.findAndCount({
+        const [items, total] = await this.findAndCount({
             skip,
             take: limit,
         });

@@ -1,23 +1,19 @@
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { IAgreementRepository } from '@features/agreements/domain/agreement.repository';
-import { Agreement } from '@features/agreements/domain/agreement';
 import { AgreementEntity } from './agreement.entity';
 
-export class TypeormAgreementRepository implements IAgreementRepository {
-    public constructor(
-        @InjectRepository(AgreementEntity)
-        private readonly repo: Repository<AgreementEntity>,
-    ) {}
-
-    public async save(agreement: Agreement): Promise<AgreementEntity> {
-        const result = await this.repo.save(agreement);
-        return result;
+@Injectable()
+export class AgreementRepository
+    extends Repository<AgreementEntity>
+    implements IAgreementRepository
+{
+    constructor(private readonly dataSource: DataSource) {
+        super(AgreementEntity, dataSource.createEntityManager());
     }
 
     public async findById(id: string): Promise<AgreementEntity | null> {
-        const result = await this.repo.findOneBy({ id });
-        return result;
+        return this.findOneBy({ id });
     }
 
     public async findAll(page: number, limit: number, state?: string) {
@@ -26,7 +22,7 @@ export class TypeormAgreementRepository implements IAgreementRepository {
         if (state) {
             where.state = state;
         }
-        const [items, total] = await this.repo.findAndCount({
+        const [items, total] = await this.findAndCount({
             skip,
             take: limit,
             where,

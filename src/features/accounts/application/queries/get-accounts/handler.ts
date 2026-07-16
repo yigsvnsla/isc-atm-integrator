@@ -6,14 +6,14 @@ import {
     RetryStrategy,
     TimeoutStrategy,
 } from 'nestjs-resilience';
-import { ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repository';
-import type { IAccountRepository } from '@features/accounts/domain/account.repository';
+import { BANK_ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repository';
+import type { IBankAccountRepository } from '@features/accounts/domain/account.repository';
 import { GetAccountsQuery } from './query';
 import { GetAccountsResponse } from './response.dto';
 import { ResponseMetadataPaginationBuilder } from '@core/response/api-response-metadata-pagination-builder';
 import { ResponseMetadataBuilder } from '@core/response/api-response-metadata-builder';
 import { CacheResultService } from '@core/cache/cache-result.service';
-import { Account } from '@features/accounts/domain/account';
+import { BankAccount } from '@features/accounts/domain/account';
 
 @QueryHandler(GetAccountsQuery)
 export class GetAccountsHandler
@@ -21,8 +21,8 @@ export class GetAccountsHandler
     implements IQueryHandler<GetAccountsQuery, GetAccountsResponse>
 {
     public constructor(
-        @Inject(ACCOUNT_REPOSITORY)
-        private readonly repository: IAccountRepository,
+        @Inject(BANK_ACCOUNT_REPOSITORY)
+        private readonly repository: IBankAccountRepository,
         private readonly cacheResult: CacheResultService,
     ) {
         super([
@@ -66,7 +66,7 @@ export class GetAccountsHandler
             .build();
 
         const response = new GetAccountsResponse(
-            result.items as unknown as Account[],
+            result.items as unknown as BankAccount[],
             metadata,
         );
 

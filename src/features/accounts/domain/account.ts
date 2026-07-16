@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class AccountBuilder {
+export class BankAccountBuilder {
     private id: string;
     private reference: string;
     private type: (typeof ACCOUNT_TYPE)[keyof typeof ACCOUNT_TYPE];
@@ -60,8 +60,8 @@ export class AccountBuilder {
         return this;
     }
 
-    public build(): Account {
-        return new Account(
+    public build(): BankAccount {
+        return new BankAccount(
             this.id,
             this.reference,
             this.type,
@@ -85,7 +85,7 @@ export const ACCOUNT_STATE = {
     INACTIVE: 'inactive',
 } as const;
 
-export class Account {
+export class BankAccount {
     @ApiProperty({ example: '267c00a9-865e-4b6b-af47-c81a021cc038' })
     public readonly id: string;
 
@@ -135,7 +135,7 @@ export class Account {
         this.deletedAt = deletedAt;
     }
 
-    public static get Builder(): AccountBuilder {
-        return new AccountBuilder();
+    public static get Builder(): BankAccountBuilder {
+        return new BankAccountBuilder();
     }
 }

@@ -5,12 +5,12 @@ import {
     CircuitBreakerStrategy,
     TimeoutStrategy,
 } from 'nestjs-resilience';
-import { ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repository';
-import type { IAccountRepository } from '@features/accounts/domain/account.repository';
+import { BANK_ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repository';
+import type { IBankAccountRepository } from '@features/accounts/domain/account.repository';
 import { GetAccountByIdQuery } from './query';
 import { GetAccountByIdResponse } from './response.dto';
 import { ResponseMetadataBuilder } from '@shared/core/response/api-response-metadata-builder';
-import { Account } from '@features/accounts/domain/account';
+import { BankAccount } from '@features/accounts/domain/account';
 
 @QueryHandler(GetAccountByIdQuery)
 export class GetAccountByIdHandler
@@ -18,8 +18,8 @@ export class GetAccountByIdHandler
     implements IQueryHandler<GetAccountByIdQuery, GetAccountByIdResponse>
 {
     public constructor(
-        @Inject(ACCOUNT_REPOSITORY)
-        private readonly repository: IAccountRepository,
+        @Inject(BANK_ACCOUNT_REPOSITORY)
+        private readonly repository: IBankAccountRepository,
     ) {
         super([
             new CircuitBreakerStrategy({
@@ -47,7 +47,7 @@ export class GetAccountByIdHandler
             .build();
 
         return new GetAccountByIdResponse(
-            account as unknown as Account,
+            account as unknown as BankAccount,
             metadata,
         );
     }

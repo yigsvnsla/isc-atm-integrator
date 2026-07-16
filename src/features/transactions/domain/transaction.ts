@@ -7,7 +7,7 @@ export class TransactionBuilder {
     private type?: (typeof TRANSACTION_TYPE)[keyof typeof TRANSACTION_TYPE];
     private state: (typeof TRANSACTION_STATE)[keyof typeof TRANSACTION_STATE];
     private description: string;
-    private accountId: string;
+    private bankAccountId: string;
     private correlationId?: string;
     private createdAt: Date;
     private updatedAt: Date;
@@ -49,8 +49,8 @@ export class TransactionBuilder {
         return this;
     }
 
-    public setAccountId(accountId: string): this {
-        this.accountId = accountId;
+    public setBankAccountId(bankAccountId: string): this {
+        this.bankAccountId = bankAccountId;
         return this;
     }
 
@@ -80,7 +80,7 @@ export class TransactionBuilder {
             this.operation,
             this.state,
             this.description,
-            this.accountId,
+            this.bankAccountId,
             this.createdAt,
             this.updatedAt,
             this.amount,
@@ -147,7 +147,7 @@ export class Transaction {
     public readonly description: string;
 
     @ApiProperty({ example: '267c00a9-865e-4b6b-af47-c81a021cc038' })
-    public readonly accountId: string;
+    public readonly bankAccountId: string;
 
     @ApiProperty({ example: '267c00a9-865e-4b6b-af47-c81a021cc038', required: false })
     public readonly correlationId?: string;
@@ -166,7 +166,7 @@ export class Transaction {
         operation: (typeof TRANSACTION_OPERATION)[keyof typeof TRANSACTION_OPERATION],
         state: (typeof TRANSACTION_STATE)[keyof typeof TRANSACTION_STATE],
         description: string,
-        accountId: string,
+        bankAccountId: string,
         createdAt: Date,
         updatedAt: Date,
         amount?: number,
@@ -180,7 +180,7 @@ export class Transaction {
         this.type = type;
         this.state = state;
         this.description = description;
-        this.accountId = accountId;
+        this.bankAccountId = bankAccountId;
         this.correlationId = correlationId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
