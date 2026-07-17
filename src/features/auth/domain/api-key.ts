@@ -17,21 +17,72 @@ export class ApiKeyBuilder {
     private updatedAt: Date;
     private deletedAt?: Date;
 
-    public setId(id: string): this { this.id = id; return this; }
-    public setKeyHash(hash: string): this { this.keyHash = hash; return this; }
-    public setPrefix(prefix: string): this { this.prefix = prefix; return this; }
-    public setName(name: string): this { this.name = name; return this; }
-    public setState(state: (typeof API_KEY_STATE)[keyof typeof API_KEY_STATE]): this { this.state = state; return this; }
-    public setAgreementId(agreementId: string): this { this.agreementId = agreementId; return this; }
-    public setCreatedBy(userId: string): this { this.createdBy = userId; return this; }
-    public setProfileId(profileId: string): this { this.profileId = profileId; return this; }
-    public setExpiresAt(expiresAt?: Date): this { this.expiresAt = expiresAt; return this; }
-    public setCreatedAt(createdAt: Date): this { this.createdAt = createdAt; return this; }
-    public setUpdatedAt(updatedAt: Date): this { this.updatedAt = updatedAt; return this; }
-    public setDeletedAt(deletedAt?: Date): this { this.deletedAt = deletedAt; return this; }
+    public setId(id: string): this {
+        this.id = id;
+        return this;
+    }
+    public setKeyHash(hash: string): this {
+        this.keyHash = hash;
+        return this;
+    }
+    public setPrefix(prefix: string): this {
+        this.prefix = prefix;
+        return this;
+    }
+    public setName(name: string): this {
+        this.name = name;
+        return this;
+    }
+    public setState(
+        state: (typeof API_KEY_STATE)[keyof typeof API_KEY_STATE],
+    ): this {
+        this.state = state;
+        return this;
+    }
+    public setAgreementId(agreementId: string): this {
+        this.agreementId = agreementId;
+        return this;
+    }
+    public setCreatedBy(userId: string): this {
+        this.createdBy = userId;
+        return this;
+    }
+    public setProfileId(profileId: string): this {
+        this.profileId = profileId;
+        return this;
+    }
+    public setExpiresAt(expiresAt?: Date): this {
+        this.expiresAt = expiresAt;
+        return this;
+    }
+    public setCreatedAt(createdAt: Date): this {
+        this.createdAt = createdAt;
+        return this;
+    }
+    public setUpdatedAt(updatedAt: Date): this {
+        this.updatedAt = updatedAt;
+        return this;
+    }
+    public setDeletedAt(deletedAt?: Date): this {
+        this.deletedAt = deletedAt;
+        return this;
+    }
 
     public build(): ApiKey {
-        return new ApiKey(this.id, this.keyHash, this.prefix, this.name, this.state, this.agreementId, this.createdBy, this.profileId, this.createdAt, this.updatedAt, this.expiresAt, this.deletedAt);
+        return new ApiKey(
+            this.id,
+            this.keyHash,
+            this.prefix,
+            this.name,
+            this.state,
+            this.agreementId,
+            this.createdBy,
+            this.profileId,
+            this.createdAt,
+            this.updatedAt,
+            this.expiresAt,
+            this.deletedAt,
+        );
     }
 }
 
@@ -50,17 +101,34 @@ export class ApiKey {
     public readonly deletedAt?: Date;
 
     public constructor(
-        id: string, keyHash: string, prefix: string, name: string,
+        id: string,
+        keyHash: string,
+        prefix: string,
+        name: string,
         state: (typeof API_KEY_STATE)[keyof typeof API_KEY_STATE],
-        agreementId: string, createdBy: string, profileId: string,
-        createdAt: Date, updatedAt: Date, expiresAt?: Date, deletedAt?: Date,
+        agreementId: string,
+        createdBy: string,
+        profileId: string,
+        createdAt: Date,
+        updatedAt: Date,
+        expiresAt?: Date,
+        deletedAt?: Date,
     ) {
-        this.id = id; this.keyHash = keyHash; this.prefix = prefix;
-        this.name = name; this.state = state; this.agreementId = agreementId;
-        this.createdBy = createdBy; this.profileId = profileId;
-        this.expiresAt = expiresAt; this.createdAt = createdAt;
-        this.updatedAt = updatedAt; this.deletedAt = deletedAt;
+        this.id = id;
+        this.keyHash = keyHash;
+        this.prefix = prefix;
+        this.name = name;
+        this.state = state;
+        this.agreementId = agreementId;
+        this.createdBy = createdBy;
+        this.profileId = profileId;
+        this.expiresAt = expiresAt;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
     }
 
-    public static get Builder(): ApiKeyBuilder { return new ApiKeyBuilder(); }
+    public static get Builder(): ApiKeyBuilder {
+        return new ApiKeyBuilder();
+    }
 }

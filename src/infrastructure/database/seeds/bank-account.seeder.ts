@@ -35,7 +35,10 @@ export default class BankAccountSeeder implements Seeder {
                 account.id = randomUUID();
                 account.reference = faker.string.numeric(10);
                 account.type = faker.helpers.arrayElement(types);
-                account.balance = faker.number.int({ min: 100000, max: 10000000 });
+                account.balance = faker.number.int({
+                    min: 100000,
+                    max: 10000000,
+                });
                 account.state = 'active';
                 account.agreementId = agreement.id;
                 account.createdAt = new Date();

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -27,6 +27,8 @@ import { AuthPermissionRepository } from './infrastructure/persistence/typeorm/a
 import { ApiKeyRepository } from './infrastructure/persistence/typeorm/api-key.repository';
 
 import { AuthController } from './presentation/auth.controller';
+import { CsrfTokenController } from './presentation/csrf-token.controller';
+import { CsrfService } from './application/csrf.service';
 import { LoginHandler } from './application/commands/login/handler';
 import { RefreshHandler } from './application/commands/refresh/handler';
 import { GenerateApiKeyHandler } from './application/commands/generate-api-key/handler';
@@ -39,6 +41,7 @@ import { ApiKeyStrategy } from './passport/api-key.strategy';
 import { JwtAuthGuard } from './passport/guards/jwt-auth.guard';
 import { ApiKeyAuthGuard } from './passport/guards/api-key-auth.guard';
 import { CombinedAuthGuard } from './passport/guards/combined-auth.guard';
+import { PermissionsGuard } from './presentation/permissions.guard';
 
 import { AgreementsModule } from '../agreements/agreements.module';
 import { CacheResultService } from '@shared/core/cache/cache-result.service';
@@ -55,6 +58,7 @@ const authEntities = [
     ApiKeyEntity,
 ];
 
+@Global()
 @Module({
     imports: [
         TypeOrmModule.forFeature(authEntities),
@@ -77,7 +81,7 @@ const authEntities = [
             },
         }),
     ],
-    controllers: [AuthController],
+    controllers: [AuthController, CsrfTokenController],
     providers: [
         {
             provide: AUTH_USER_REPOSITORY,
@@ -110,6 +114,7 @@ const authEntities = [
             inject: [DataSource],
         },
         CacheResultService,
+        CsrfService,
         LocalStrategy,
         JwtStrategy,
         ApiKeyStrategy,
@@ -118,6 +123,10 @@ const authEntities = [
         GenerateApiKeyHandler,
         RevokeApiKeyHandler,
         GetApiKeysHandler,
+        JwtAuthGuard,
+        ApiKeyAuthGuard,
+        CombinedAuthGuard,
+        PermissionsGuard,
     ],
     exports: [
         AUTH_USER_REPOSITORY,
@@ -127,6 +136,7 @@ const authEntities = [
         JwtAuthGuard,
         ApiKeyAuthGuard,
         CombinedAuthGuard,
+        PermissionsGuard,
     ],
 })
 export class AuthModule {}

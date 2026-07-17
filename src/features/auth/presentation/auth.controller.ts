@@ -1,4 +1,11 @@
-import { ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiOperation,
+    ApiResponse,
+    ApiSecurity,
+    ApiTags,
+} from '@nestjs/swagger';
 import {
     Body,
     Controller,
@@ -26,6 +33,8 @@ import { RevokeApiKeyResponse } from '../application/commands/revoke-api-key/res
 import { GetApiKeysQuery } from '../application/queries/get-api-keys/query';
 import { GetApiKeysResponse } from '../application/queries/get-api-keys/response.dto';
 import { JwtAuthGuard } from '../passport/guards/jwt-auth.guard';
+import { PermissionsGuard } from './permissions.guard';
+import { RequiresPermissions } from './permissions.decorator';
 import type { Request, Response } from 'express';
 
 @ApiTags('Auth')
@@ -39,6 +48,14 @@ export class AuthController {
     @Post('login')
     @Version('1')
     @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Login with email and password' })
+    @ApiBody({ type: LoginCommand })
+    @ApiResponse({
+        status: 200,
+        description: 'Login successful',
+        type: LoginResponse,
+    })
+    @ApiResponse({ status: 401, description: 'Invalid credentials' })
     public async login(
         @Body() command: LoginCommand,
         @Res({ passthrough: true }) res: Response,
@@ -59,12 +76,21 @@ export class AuthController {
     @Post('refresh')
     @Version('1')
     @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Refresh access token using refresh cookie' })
+    @ApiResponse({
+        status: 200,
+        description: 'Token refreshed',
+        type: RefreshResponse,
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Invalid or expired refresh token',
+    })
     public async refresh(
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
     ): Promise<RefreshResponse> {
-        const refreshToken =
-            req.cookies?.['__Host-refresh-token'] ?? '';
+        const refreshToken = req.cookies?.['__Host-refresh-token'] ?? '';
 
         const result = await this.commandBus.execute<RefreshResponse>(
             new RefreshCommand(refreshToken),
@@ -83,8 +109,20 @@ export class AuthController {
 
     @Post('api-keys')
     @Version('1')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
     @HttpCode(HttpStatus.CREATED)
+    @ApiBearerAuth()
+    @ApiSecurity('api-key')
+    @RequiresPermissions('api_keys:write')
+    @ApiOperation({ summary: 'Generate an API key for an agreement' })
+    @ApiBody({ type: GenerateApiKeyCommand })
+    @ApiResponse({
+        status: 201,
+        description: 'API key generated',
+        type: GenerateApiKeyResponse,
+    })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 404, description: 'Agreement not found' })
     public async generateApiKey(
         @Body() command: GenerateApiKeyCommand,
     ): Promise<GenerateApiKeyResponse> {
@@ -93,7 +131,17 @@ export class AuthController {
 
     @Get('api-keys')
     @Version('1')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @ApiBearerAuth()
+    @ApiSecurity('api-key')
+    @RequiresPermissions('api_keys:read')
+    @ApiOperation({ summary: 'List API keys for an agreement' })
+    @ApiResponse({
+        status: 200,
+        description: 'API keys found',
+        type: GetApiKeysResponse,
+    })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
     public async listApiKeys(
         @Query('agreement_id') agreementId: string,
         @Query('page') page?: number,
@@ -106,7 +154,18 @@ export class AuthController {
 
     @Delete('api-keys/:id')
     @Version('1')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @ApiBearerAuth()
+    @ApiSecurity('api-key')
+    @RequiresPermissions('api_keys:write')
+    @ApiOperation({ summary: 'Revoke an API key' })
+    @ApiResponse({
+        status: 200,
+        description: 'API key revoked',
+        type: RevokeApiKeyResponse,
+    })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 404, description: 'API key not found' })
     public async revokeApiKey(
         @Param('id') id: string,
     ): Promise<RevokeApiKeyResponse> {

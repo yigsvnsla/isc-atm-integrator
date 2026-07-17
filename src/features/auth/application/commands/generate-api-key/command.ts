@@ -14,7 +14,10 @@ export class GenerateApiKeyCommand extends Command<GenerateApiKeyResponse> {
     @IsNotEmpty()
     public readonly name!: string;
 
-    @ApiProperty({ example: '267c00a9-865e-4b6b-af47-c81a021cc038', required: false })
+    @ApiProperty({
+        example: '267c00a9-865e-4b6b-af47-c81a021cc038',
+        required: false,
+    })
     @IsUUID()
     @IsOptional()
     public readonly profile_id?: string;

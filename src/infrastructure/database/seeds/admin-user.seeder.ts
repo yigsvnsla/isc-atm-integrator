@@ -1,4 +1,4 @@
-import { Seeder, SeederFactoryManager } from 'typeorm-extension';
+import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
@@ -7,15 +7,13 @@ import { AuthProfileEntity } from '@features/auth/infrastructure/persistence/typ
 import { UserProfileEntity } from '@features/auth/infrastructure/persistence/typeorm/user-profile.entity';
 
 export default class AdminUserSeeder implements Seeder {
-    public async run(
-        dataSource: DataSource,
-        _factoryManager: SeederFactoryManager,
-    ): Promise<void> {
+    public async run(dataSource: DataSource): Promise<void> {
         const userRepo = dataSource.getRepository(AuthUserEntity);
         const profileRepo = dataSource.getRepository(AuthProfileEntity);
         const upRepo = dataSource.getRepository(UserProfileEntity);
 
-        const email = process.env.APP_SEED_ADMIN_EMAIL ?? 'admin@atm-integrator.local';
+        const email =
+            process.env.APP_SEED_ADMIN_EMAIL ?? 'admin@atm-integrator.local';
         const existing = await userRepo.findOneBy({ email });
         if (existing) {
             console.log(`Admin user already exists (${email}). Skipping.`);

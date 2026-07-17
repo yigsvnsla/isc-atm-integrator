@@ -7,7 +7,11 @@ export interface IApiKeyRepository {
     save(apiKey: ApiKey): Promise<ApiKeyEntity>;
     findById(id: string): Promise<ApiKeyEntity | null>;
     findByHash(keyHash: string): Promise<ApiKeyEntity | null>;
-    findAllByAgreement(agreementId: string, page: number, limit: number): Promise<{
+    findAllByAgreement(
+        agreementId: string,
+        page: number,
+        limit: number,
+    ): Promise<{
         items: ApiKeyEntity[];
         total: number;
         page: number;

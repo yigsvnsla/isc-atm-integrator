@@ -1,11 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+    IsEnum,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    IsUUID,
+    Min,
+} from 'class-validator';
 import { Command } from '@nestjs/cqrs';
 import type { CreateTransactionResponse } from './response.dto';
-import { TRANSACTION_OPERATION, TRANSACTION_TYPE } from '@features/transactions/domain/transaction';
+import {
+    TRANSACTION_OPERATION,
+    TRANSACTION_TYPE,
+} from '@features/transactions/domain/transaction';
 
 export class CreateTransactionCommand extends Command<CreateTransactionResponse> {
-    @ApiProperty({ example: 5000, description: 'Amount in cents', required: false })
+    @ApiProperty({
+        example: 5000,
+        description: 'Amount in cents',
+        required: false,
+    })
     @IsOptional()
     public readonly amount?: number;
 
@@ -27,7 +41,10 @@ export class CreateTransactionCommand extends Command<CreateTransactionResponse>
     @IsEnum(TRANSACTION_TYPE)
     public readonly type?: (typeof TRANSACTION_TYPE)[keyof typeof TRANSACTION_TYPE];
 
-    @ApiProperty({ example: 'ATM withdrawal', description: 'Transaction description' })
+    @ApiProperty({
+        example: 'ATM withdrawal',
+        description: 'Transaction description',
+    })
     @IsString()
     @IsNotEmpty()
     public readonly description!: string;

@@ -7,11 +7,11 @@ import { versioningSetup } from '@infrastructure/config/versioning';
 import { AppConfigService } from '@shared/core/types';
 import { corsSetup } from '@infrastructure/config/cors';
 import { asyncLocalStorageSetup } from '@infrastructure/config/async-local-storage';
-import { csrfSetup } from '@infrastructure/config/csrf';
+import { csrfSetup } from '@features/auth/infrastructure/csrf.middleware';
 import { helmetSetup } from '@infrastructure/config/helmet';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, { snapshot: true });
 
     const configService = app.get<AppConfigService>(ConfigService);
 

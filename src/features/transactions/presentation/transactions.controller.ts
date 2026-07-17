@@ -11,9 +11,15 @@ import {
     Patch,
     Post,
     Query,
+    UseGuards,
     UseInterceptors,
     Version,
 } from '@nestjs/common';
+import {
+    CombinedAuthGuard,
+    PermissionsGuard,
+} from '@features/auth/presentation/auth-guards.index';
+import { RequiresPermissions } from '@features/auth/presentation/permissions.decorator';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
     ResilienceInterceptor,
@@ -38,6 +44,7 @@ import { ResponseMetadataPagination } from '@core/response/api-response-metadata
 @ApiTags('Transactions')
 @ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
 @Controller('transactions')
+@UseGuards(CombinedAuthGuard, PermissionsGuard)
 @UseInterceptors(
     ResilienceInterceptor(
         new ThrottleStrategy({ ttl: 60_000, limit: 30 }),
@@ -53,6 +60,7 @@ export class TransactionsController {
     @Post()
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @RequiresPermissions('transactions:write')
     public async create(
         @Body() command: CreateTransactionCommand,
     ): Promise<CreateTransactionResponse> {
@@ -62,6 +70,7 @@ export class TransactionsController {
     @Post('transfer')
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @RequiresPermissions('transactions:write')
     public async transfer(
         @Body() command: TransferCommand,
     ): Promise<TransferResponse> {
@@ -70,6 +79,7 @@ export class TransactionsController {
 
     @Patch(':id/state')
     @Version('1')
+    @RequiresPermissions('transactions:write')
     public async updateState(
         @Param('id') id: string,
         @Body('state') state: string,
@@ -84,6 +94,7 @@ export class TransactionsController {
 
     @Get()
     @Version('1')
+    @RequiresPermissions('transactions:read')
     public async list(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -106,6 +117,7 @@ export class TransactionsController {
 
     @Get(':id')
     @Version('1')
+    @RequiresPermissions('transactions:read')
     public async getById(
         @Param('id') id: string,
     ): Promise<GetTransactionByIdResponse> {

@@ -55,7 +55,9 @@ export class CreateTransactionHandler
     public async run(
         command: CreateTransactionCommand,
     ): Promise<CreateTransactionResponse> {
-        const account = await this.accountRepository.findById(command.account_id);
+        const account = await this.accountRepository.findById(
+            command.account_id,
+        );
         if (!account) {
             throw new NotFoundException(
                 `Account with ID ${command.account_id} not found`,

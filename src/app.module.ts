@@ -14,22 +14,26 @@ import { AuthModule } from './features/auth/auth.module';
 import { NotificationsModule } from '@features/notifications/notifications.module';
 import { AllExceptionsFilter } from '@shared/core/exceptions/exception-filter';
 import { HealthModule } from '@infrastructure/health/health.module';
+import { DevtoolsModule } from '@nestjs/devtools-integration';
 
 @Module({
     imports: [
-        ClsModule.forRoot({
-            global: true,
-            middleware: { mount: false, debug: false },
-        }),
         // TODO: ResilienceModule global por ahora. Evaluar mover a módulos
         // individuales (ej. OrdersModule) cuando se necesiten políticas
         // diferentes por feature o se quiera limitar el scope.
         ResilienceModule.forRoot({}),
         DatabaseModule.forRoot(),
+        ClsModule.forRoot({
+            global: true,
+            middleware: { mount: false, debug: false },
+        }),
         ConfigModule.forRoot({
             load: [configuration],
             isGlobal: true,
             cache: true,
+        }),
+        DevtoolsModule.register({
+            http: process.env.NODE_ENV !== 'production',
         }),
         CacheModule,
         OrdersModule,

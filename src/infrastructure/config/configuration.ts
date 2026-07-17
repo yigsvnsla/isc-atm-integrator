@@ -31,26 +31,57 @@ export default () => ({
         },
     },
 
+    database: {
+        type: String(process.env.DB_TYPE ?? 'pglite'),
+        postgres: {
+            host: String(process.env.DB_HOST ?? 'localhost'),
+            port: parseInt(String(process.env.DB_PORT ?? '5432'), 10),
+            username: String(process.env.DB_USERNAME ?? 'postgres'),
+            password: String(process.env.DB_PASSWORD ?? 'postgres'),
+            name: String(process.env.DB_NAME ?? 'isc_atm'),
+            synchronize: process.env.NODE_ENV !== 'production',
+        },
+        pglite: {
+            dataDir: process.env.PGLITE_DATA_DIR,
+        },
+        socket: {
+            host: String(process.env.PGLITE_SOCKET_HOST ?? '127.0.0.1'),
+            port: parseInt(
+                String(process.env.PGLITE_SOCKET_PORT ?? '5433'),
+                10,
+            ),
+        },
+        migrations: {
+            dir: String(
+                process.env.TYPEORM_MIGRATIONS_DIR ??
+                    'src/infrastructure/database/migrations',
+            ),
+            tableName: String(
+                process.env.TYPEORM_MIGRATIONS_TABLE_NAME ??
+                    'typeorm_migrations',
+            ),
+        },
+    },
+
     security: {
         jwt: {
             secret: String(
-                process.env.APP_JWT_SECRET ?? 'atm-integrator-jwt-secret-change-in-prod',
+                process.env.APP_JWT_SECRET ??
+                    'atm-integrator-jwt-secret-change-in-prod',
             ),
-            expiresIn: String(
-                process.env.APP_JWT_EXPIRES_IN ?? '15m',
-            ),
+            expiresIn: String(process.env.APP_JWT_EXPIRES_IN ?? '15m'),
             refreshExpiresIn: parseInt(
-                String(process.env.APP_JWT_REFRESH_EXPIRES_IN ?? '604800'), 10,
+                String(process.env.APP_JWT_REFRESH_EXPIRES_IN ?? '604800'),
+                10,
             ),
         },
         csrf: {
             enabled: process.env.APP_CSRF_ENABLED !== 'false',
             secret: String(
-                process.env.APP_CSRF_SECRET ?? 'atm-integrator-csrf-secret-change-in-prod',
+                process.env.APP_CSRF_SECRET ??
+                    'atm-integrator-csrf-secret-change-in-prod',
             ),
-            cookieName: String(
-                process.env.APP_CSRF_COOKIE ?? 'x-csrf-token',
-            ),
+            cookieName: String(process.env.APP_CSRF_COOKIE ?? 'x-csrf-token'),
         },
     },
 });

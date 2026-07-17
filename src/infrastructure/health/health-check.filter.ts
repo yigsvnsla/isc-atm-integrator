@@ -7,7 +7,10 @@ import {
 
 @Catch(ServiceUnavailableException)
 export class HealthCheckFilter implements ExceptionFilter {
-    public catch(exception: ServiceUnavailableException, host: ArgumentsHost): void {
+    public catch(
+        exception: ServiceUnavailableException,
+        host: ArgumentsHost,
+    ): void {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const exceptionResponse = exception.getResponse();

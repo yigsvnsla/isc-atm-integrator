@@ -10,9 +10,15 @@ import {
     ParseIntPipe,
     Post,
     Query,
+    UseGuards,
     UseInterceptors,
     Version,
 } from '@nestjs/common';
+import {
+    CombinedAuthGuard,
+    PermissionsGuard,
+} from '@features/auth/presentation/auth-guards.index';
+import { RequiresPermissions } from '@features/auth/presentation/permissions.decorator';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
     ResilienceInterceptor,
@@ -32,6 +38,7 @@ import { ResponseMetadataPagination } from '@core/response/api-response-metadata
 @ApiTags('Accounts')
 @ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
 @Controller('accounts')
+@UseGuards(CombinedAuthGuard, PermissionsGuard)
 @UseInterceptors(
     ResilienceInterceptor(
         new ThrottleStrategy({ ttl: 60_000, limit: 30 }),
@@ -47,6 +54,7 @@ export class AccountsController {
     @Post()
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @RequiresPermissions('accounts:write')
     public async create(
         @Body() command: CreateAccountCommand,
     ): Promise<CreateAccountResponse> {
@@ -55,6 +63,7 @@ export class AccountsController {
 
     @Get()
     @Version('1')
+    @RequiresPermissions('accounts:read')
     public async list(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -69,6 +78,7 @@ export class AccountsController {
 
     @Get(':id')
     @Version('1')
+    @RequiresPermissions('accounts:read')
     public async getById(
         @Param('id') id: string,
     ): Promise<GetAccountByIdResponse> {

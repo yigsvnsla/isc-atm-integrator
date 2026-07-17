@@ -10,7 +10,10 @@ import { CreateAgreementCommand } from './command';
 import { CreateAgreementResponse } from './response.dto';
 import { AGREEMENT_REPOSITORY } from '@features/agreements/domain/agreement.repository';
 import type { IAgreementRepository } from '@features/agreements/domain/agreement.repository';
-import { Agreement, AGREEMENT_STATE } from '@features/agreements/domain/agreement';
+import {
+    Agreement,
+    AGREEMENT_STATE,
+} from '@features/agreements/domain/agreement';
 import { ResponseMetadataBuilder } from '@shared/core/response/api-response-metadata-builder';
 import { CacheResultService } from '@core/cache/cache-result.service';
 
@@ -35,7 +38,6 @@ export class CreateAgreementHandler
         ]);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     public async run(
         command: CreateAgreementCommand,
     ): Promise<CreateAgreementResponse> {

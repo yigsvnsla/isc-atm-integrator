@@ -19,11 +19,13 @@ export class AuthRefreshTokenRepository
     }
 
     public async deleteByUserId(userId: string): Promise<void> {
-        await super.delete({ userId } as FindOptionsWhere<AuthRefreshTokenEntity>);
+        await super.delete({
+            userId,
+        });
     }
 
     // @ts-expect-error: domain interface returns void, base Repository returns DeleteResult
     public async delete(id: string): Promise<void> {
-        await super.delete({ id } as FindOptionsWhere<AuthRefreshTokenEntity>);
+        await super.delete({ id });
     }
 }

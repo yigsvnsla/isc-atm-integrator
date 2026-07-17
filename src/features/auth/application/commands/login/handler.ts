@@ -49,10 +49,13 @@ export class LoginHandler
             throw new UnauthorizedException('User is inactive');
         }
 
+        const userPermissions =
+            await this.userRepository.findPermissionsByUserId(user.id);
+
         const payload = {
             sub: user.id,
             agreementId: user.agreementId,
-            permissions: [],
+            permissions: userPermissions,
         };
 
         const accessToken = await this.jwtService.signAsync(payload);

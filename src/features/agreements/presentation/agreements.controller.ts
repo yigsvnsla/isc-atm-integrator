@@ -10,9 +10,15 @@ import {
     ParseIntPipe,
     Post,
     Query,
+    UseGuards,
     UseInterceptors,
     Version,
 } from '@nestjs/common';
+import {
+    CombinedAuthGuard,
+    PermissionsGuard,
+} from '@features/auth/presentation/auth-guards.index';
+import { RequiresPermissions } from '@features/auth/presentation/permissions.decorator';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
     ResilienceInterceptor,
@@ -32,6 +38,7 @@ import { ResponseMetadataPagination } from '@core/response/api-response-metadata
 @ApiTags('Agreements')
 @ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
 @Controller('agreements')
+@UseGuards(CombinedAuthGuard, PermissionsGuard)
 @UseInterceptors(
     ResilienceInterceptor(
         new ThrottleStrategy({ ttl: 60_000, limit: 30 }),
@@ -47,6 +54,7 @@ export class AgreementsController {
     @Post()
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @RequiresPermissions('agreements:write')
     public async create(
         @Body() command: CreateAgreementCommand,
     ): Promise<CreateAgreementResponse> {
@@ -55,6 +63,7 @@ export class AgreementsController {
 
     @Get()
     @Version('1')
+    @RequiresPermissions('agreements:read')
     public async list(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -71,6 +80,7 @@ export class AgreementsController {
         description: 'Agreement found',
         type: GetAgreementByIdResponse,
     })
+    @RequiresPermissions('agreements:read')
     public async getById(
         @Param('id') id: string,
     ): Promise<GetAgreementByIdResponse> {

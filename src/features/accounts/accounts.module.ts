@@ -13,7 +13,11 @@ import { AgreementsModule } from '../agreements/agreements.module';
 import { CacheResultService } from '@shared/core/cache/cache-result.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([BankAccountEntity]), CqrsModule, AgreementsModule],
+    imports: [
+        TypeOrmModule.forFeature([BankAccountEntity]),
+        CqrsModule,
+        AgreementsModule,
+    ],
     controllers: [AccountsController],
     providers: [
         {

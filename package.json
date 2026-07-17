@@ -13,6 +13,11 @@
         "start:debug": "nest start --debug --type-check --watch --builder swc ",
         "start:prod": "node dist/main",
         "start:cache": "REDISMS_PORT=6379 bun x redis-memory-server",
+        "db:start": "bun x pglite-server --port 5433",
+        "db:dev": "bun x pglite-server --db=./data/pglite --port 5433",
+        "db:seed": "nest build --builder swc && DB_TYPE=pglite-socket node dist/infrastructure/database/seeds/run-seed.js",
+        "migration:run": "nest build --builder swc && DB_TYPE=pglite-socket typeorm migration:run -d dist/infrastructure/database/data-source.js",
+        "migration:revert": "nest build --builder swc && DB_TYPE=pglite-socket typeorm migration:revert -d dist/infrastructure/database/data-source.js",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "jest",
         "test:watch": "jest --watch",
@@ -30,6 +35,7 @@
         "@nestjs/config": "^4.0.4",
         "@nestjs/core": "^11.0.1",
         "@nestjs/cqrs": "^11.0.3",
+        "@nestjs/devtools-integration": "^0.2.1",
         "@nestjs/jwt": "^11.0.2",
         "@nestjs/passport": "^11.0.5",
         "@nestjs/platform-express": "^11.0.1",
@@ -61,6 +67,7 @@
         "typeorm-pglite": "^0.3.4"
     },
     "devDependencies": {
+        "@electric-sql/pglite-socket": "^0.2.7",
         "@eslint/eslintrc": "^3.2.0",
         "@eslint/js": "^9.18.0",
         "@faker-js/faker": "^10.5.0",

@@ -131,7 +131,11 @@ export class Transaction {
     @ApiProperty({ example: '267c00a9-865e-4b6b-af47-c81a021cc038' })
     public readonly id: string;
 
-    @ApiProperty({ example: 5000, description: 'Amount in cents', required: false })
+    @ApiProperty({
+        example: 5000,
+        description: 'Amount in cents',
+        required: false,
+    })
     public readonly amount?: number;
 
     @ApiProperty({ enum: TRANSACTION_OPERATION })
@@ -149,7 +153,10 @@ export class Transaction {
     @ApiProperty({ example: '267c00a9-865e-4b6b-af47-c81a021cc038' })
     public readonly bankAccountId: string;
 
-    @ApiProperty({ example: '267c00a9-865e-4b6b-af47-c81a021cc038', required: false })
+    @ApiProperty({
+        example: '267c00a9-865e-4b6b-af47-c81a021cc038',
+        required: false,
+    })
     public readonly correlationId?: string;
 
     @ApiProperty({ example: '2026-07-09T22:31:30.974Z' })

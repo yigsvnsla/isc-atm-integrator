@@ -65,7 +65,10 @@ export class GetAgreementsHandler
             .setPagination(pagination)
             .build();
 
-        const response = new GetAgreementsResponse(result.items as unknown as Agreement[], metadata);
+        const response = new GetAgreementsResponse(
+            result.items as unknown as Agreement[],
+            metadata,
+        );
 
         void this.cacheResult.set(cacheKey, response);
 

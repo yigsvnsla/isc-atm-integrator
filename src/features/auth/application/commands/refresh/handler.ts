@@ -53,16 +53,21 @@ export class RefreshHandler
 
         await this.refreshTokenRepository.delete(stored.id);
 
+        const userPermissions =
+            await this.userRepository.findPermissionsByUserId(user.id);
+
         const payload = {
             sub: user.id,
             agreementId: user.agreementId,
-            permissions: [],
+            permissions: userPermissions,
         };
 
         const accessToken = await this.jwtService.signAsync(payload);
 
         const rawToken = randomBytes(48).toString('hex');
-        const newTokenHash = createHash('sha256').update(rawToken).digest('hex');
+        const newTokenHash = createHash('sha256')
+            .update(rawToken)
+            .digest('hex');
         const cfg = this.configService as unknown as AppConfigService;
         const refreshExpiresIn = cfg.get('security.jwt.refreshExpiresIn', {
             infer: true,

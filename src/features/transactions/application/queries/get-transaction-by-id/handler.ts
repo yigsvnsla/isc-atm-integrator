@@ -15,7 +15,8 @@ import { Transaction } from '@features/transactions/domain/transaction';
 @QueryHandler(GetTransactionByIdQuery)
 export class GetTransactionByIdHandler
     extends ResilienceCommand
-    implements IQueryHandler<GetTransactionByIdQuery, GetTransactionByIdResponse>
+    implements
+        IQueryHandler<GetTransactionByIdQuery, GetTransactionByIdResponse>
 {
     public constructor(
         @Inject(TRANSACTION_REPOSITORY)

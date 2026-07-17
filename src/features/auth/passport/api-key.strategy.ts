@@ -26,7 +26,9 @@ export class ApiKeyStrategy extends PassportStrategy(Strategy, 'api-key') {
             throw new UnauthorizedException('Missing x-api-key header');
         }
 
-        const stripped = rawKey.startsWith('sk-') ? rawKey.substring(3) : rawKey;
+        const stripped = rawKey.startsWith('sk-')
+            ? rawKey.substring(3)
+            : rawKey;
         const keyHash = createHash('sha256').update(stripped).digest('hex');
 
         const apiKey = await this.apiKeyRepository.findByHash(keyHash);

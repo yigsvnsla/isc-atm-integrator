@@ -43,9 +43,6 @@ export class RevokeApiKeyHandler
             .setMessage('API key revoked')
             .build();
 
-        return new RevokeApiKeyResponse(
-            entity as unknown as ApiKey,
-            metadata,
-        );
+        return new RevokeApiKeyResponse(entity as unknown as ApiKey, metadata);
     }
 }

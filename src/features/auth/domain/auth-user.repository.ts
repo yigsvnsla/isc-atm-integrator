@@ -7,10 +7,14 @@ export interface IAuthUserRepository {
     save(user: AuthUser): Promise<AuthUserEntity>;
     findById(id: string): Promise<AuthUserEntity | null>;
     findByEmail(email: string): Promise<AuthUserEntity | null>;
-    findAll(page: number, limit: number): Promise<{
+    findAll(
+        page: number,
+        limit: number,
+    ): Promise<{
         items: AuthUserEntity[];
         total: number;
         page: number;
         limit: number;
     }>;
+    findPermissionsByUserId(userId: string): Promise<string[]>;
 }

@@ -28,4 +28,17 @@ export class AuthUserRepository
         });
         return { items, total, page, limit };
     }
+
+    public async findPermissionsByUserId(userId: string): Promise<string[]> {
+        const rows = await this.dataSource.query<{ name: string }[]>(
+            `SELECT DISTINCT ap.name
+             FROM auth_permission ap
+             INNER JOIN profile_permission pp ON pp.permission_id = ap.id
+             INNER JOIN user_profile up ON up.profile_id = pp.profile_id
+             WHERE up.user_id = $1
+             ORDER BY ap.name`,
+            [userId],
+        );
+        return rows.map((r) => r.name);
+    }
 }

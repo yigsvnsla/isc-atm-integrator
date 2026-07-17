@@ -1,8 +1,4 @@
-import {
-    HttpStatus,
-    Inject,
-    NotFoundException,
-} from '@nestjs/common';
+import { HttpStatus, Inject, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { createHash, randomBytes } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
@@ -58,9 +54,8 @@ export class GenerateApiKeyHandler
 
         let profileId = command.profile_id;
         if (!profileId) {
-            const defaultProfile = await this.profileRepository.findByName(
-                'api_client',
-            );
+            const defaultProfile =
+                await this.profileRepository.findByName('api_client');
             if (defaultProfile) {
                 profileId = defaultProfile.id;
             }
@@ -95,7 +90,9 @@ export class GenerateApiKeyHandler
 
         const metadata = new ResponseMetadataBuilder()
             .setStatusCode(HttpStatus.CREATED)
-            .setMessage('API key generated. Store it securely — it will not be shown again.')
+            .setMessage(
+                'API key generated. Store it securely — it will not be shown again.',
+            )
             .build();
 
         return new GenerateApiKeyResponse(
