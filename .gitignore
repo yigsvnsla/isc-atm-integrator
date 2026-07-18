@@ -1,7 +1,7 @@
 # compiled output
-/dist
-/node_modules
-/build
+dist
+node_modules
+build
 
 # Logs
 logs
@@ -16,8 +16,8 @@ lerna-debug.log*
 .DS_Store
 
 # Tests
-/coverage
-/.nyc_output
+coverage
+.nyc_output
 
 # IDEs and editors
 /.idea
@@ -47,7 +47,10 @@ lerna-debug.log*
 .tmp
 
 # SQLite runtime data (sqljs persistence)
-/data
+data
+
+# Client auth token
+.token
 
 # Runtime data
 pids
