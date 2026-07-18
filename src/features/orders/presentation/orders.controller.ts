@@ -1,4 +1,11 @@
-import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiCreatedResponse,
+    ApiExtraModels,
+    ApiOkResponse,
+    ApiSecurity,
+    ApiTags,
+} from '@nestjs/swagger';
 import {
     Body,
     Controller,
@@ -36,7 +43,16 @@ import { ResponseMetadata } from '@core/response/api-response-metadata';
 import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
 
 @ApiTags('Orders')
-@ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
+@ApiBearerAuth()
+@ApiSecurity('api-key')
+@ApiExtraModels(
+    ResponseMetadata,
+    ResponseMetadataPagination,
+    ApiResponseError,
+    CreateOrderResponse,
+    GetOrdersResponse,
+    GetOrderByIdResponse,
+)
 @Controller('orders')
 @UseGuards(CombinedAuthGuard, PermissionsGuard)
 @UseInterceptors(
@@ -54,6 +70,10 @@ export class OrdersController {
     @Post()
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @ApiCreatedResponse({
+        description: 'Order created',
+        type: CreateOrderResponse,
+    })
     @RequiresPermissions('orders:write')
     public async create(
         @Body() command: CreateOrderCommand,
@@ -63,6 +83,10 @@ export class OrdersController {
 
     @Get()
     @Version('1')
+    @ApiOkResponse({
+        description: 'Orders found',
+        type: GetOrdersResponse,
+    })
     @RequiresPermissions('orders:read')
     public async list(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,

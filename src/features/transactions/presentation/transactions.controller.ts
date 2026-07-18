@@ -1,4 +1,11 @@
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiCreatedResponse,
+    ApiExtraModels,
+    ApiOkResponse,
+    ApiSecurity,
+    ApiTags,
+} from '@nestjs/swagger';
 import {
     Body,
     Controller,
@@ -42,7 +49,18 @@ import { ResponseMetadata } from '@core/response/api-response-metadata';
 import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
 
 @ApiTags('Transactions')
-@ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
+@ApiBearerAuth()
+@ApiSecurity('api-key')
+@ApiExtraModels(
+    ResponseMetadata,
+    ResponseMetadataPagination,
+    ApiResponseError,
+    CreateTransactionResponse,
+    TransferResponse,
+    UpdateTransactionStateResponse,
+    GetTransactionsResponse,
+    GetTransactionByIdResponse,
+)
 @Controller('transactions')
 @UseGuards(CombinedAuthGuard, PermissionsGuard)
 @UseInterceptors(
@@ -60,6 +78,10 @@ export class TransactionsController {
     @Post()
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @ApiCreatedResponse({
+        description: 'Transaction created',
+        type: CreateTransactionResponse,
+    })
     @RequiresPermissions('transactions:write')
     public async create(
         @Body() command: CreateTransactionCommand,
@@ -70,6 +92,10 @@ export class TransactionsController {
     @Post('transfer')
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @ApiCreatedResponse({
+        description: 'Transfer completed',
+        type: TransferResponse,
+    })
     @RequiresPermissions('transactions:write')
     public async transfer(
         @Body() command: TransferCommand,
@@ -79,6 +105,10 @@ export class TransactionsController {
 
     @Patch(':id/state')
     @Version('1')
+    @ApiOkResponse({
+        description: 'Transaction state updated',
+        type: UpdateTransactionStateResponse,
+    })
     @RequiresPermissions('transactions:write')
     public async updateState(
         @Param('id') id: string,
@@ -94,6 +124,10 @@ export class TransactionsController {
 
     @Get()
     @Version('1')
+    @ApiOkResponse({
+        description: 'Transactions found',
+        type: GetTransactionsResponse,
+    })
     @RequiresPermissions('transactions:read')
     public async list(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -117,6 +151,10 @@ export class TransactionsController {
 
     @Get(':id')
     @Version('1')
+    @ApiOkResponse({
+        description: 'Transaction found',
+        type: GetTransactionByIdResponse,
+    })
     @RequiresPermissions('transactions:read')
     public async getById(
         @Param('id') id: string,

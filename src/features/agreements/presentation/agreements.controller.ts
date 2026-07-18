@@ -1,4 +1,11 @@
-import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiCreatedResponse,
+    ApiExtraModels,
+    ApiOkResponse,
+    ApiSecurity,
+    ApiTags,
+} from '@nestjs/swagger';
 import {
     Body,
     Controller,
@@ -36,7 +43,16 @@ import { ResponseMetadata } from '@core/response/api-response-metadata';
 import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
 
 @ApiTags('Agreements')
-@ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
+@ApiBearerAuth()
+@ApiSecurity('api-key')
+@ApiExtraModels(
+    ResponseMetadata,
+    ResponseMetadataPagination,
+    ApiResponseError,
+    CreateAgreementResponse,
+    GetAgreementsResponse,
+    GetAgreementByIdResponse,
+)
 @Controller('agreements')
 @UseGuards(CombinedAuthGuard, PermissionsGuard)
 @UseInterceptors(
@@ -54,6 +70,10 @@ export class AgreementsController {
     @Post()
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @ApiCreatedResponse({
+        description: 'Agreement created',
+        type: CreateAgreementResponse,
+    })
     @RequiresPermissions('agreements:write')
     public async create(
         @Body() command: CreateAgreementCommand,
@@ -63,6 +83,10 @@ export class AgreementsController {
 
     @Get()
     @Version('1')
+    @ApiOkResponse({
+        description: 'Agreements found',
+        type: GetAgreementsResponse,
+    })
     @RequiresPermissions('agreements:read')
     public async list(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,

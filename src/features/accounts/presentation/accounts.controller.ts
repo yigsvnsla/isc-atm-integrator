@@ -1,4 +1,11 @@
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiCreatedResponse,
+    ApiExtraModels,
+    ApiOkResponse,
+    ApiSecurity,
+    ApiTags,
+} from '@nestjs/swagger';
 import {
     Body,
     Controller,
@@ -36,7 +43,16 @@ import { ResponseMetadata } from '@core/response/api-response-metadata';
 import { ResponseMetadataPagination } from '@core/response/api-response-metadata-pagination';
 
 @ApiTags('Accounts')
-@ApiExtraModels(ResponseMetadata, ResponseMetadataPagination, ApiResponseError)
+@ApiBearerAuth()
+@ApiSecurity('api-key')
+@ApiExtraModels(
+    ResponseMetadata,
+    ResponseMetadataPagination,
+    ApiResponseError,
+    CreateAccountResponse,
+    GetAccountsResponse,
+    GetAccountByIdResponse,
+)
 @Controller('accounts')
 @UseGuards(CombinedAuthGuard, PermissionsGuard)
 @UseInterceptors(
@@ -54,6 +70,10 @@ export class AccountsController {
     @Post()
     @Version('1')
     @HttpCode(HttpStatus.CREATED)
+    @ApiCreatedResponse({
+        description: 'Account created',
+        type: CreateAccountResponse,
+    })
     @RequiresPermissions('accounts:write')
     public async create(
         @Body() command: CreateAccountCommand,
@@ -63,6 +83,10 @@ export class AccountsController {
 
     @Get()
     @Version('1')
+    @ApiOkResponse({
+        description: 'Accounts found',
+        type: GetAccountsResponse,
+    })
     @RequiresPermissions('accounts:read')
     public async list(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -78,6 +102,10 @@ export class AccountsController {
 
     @Get(':id')
     @Version('1')
+    @ApiOkResponse({
+        description: 'Account found',
+        type: GetAccountByIdResponse,
+    })
     @RequiresPermissions('accounts:read')
     public async getById(
         @Param('id') id: string,
