@@ -41,6 +41,8 @@ const PERMISSIONS: SeedPermission[] = [
     { resource: 'profiles', action: 'delete', name: 'profiles:delete' },
     { resource: 'permissions', action: 'read', name: 'permissions:read' },
     { resource: 'audit', action: 'read', name: 'audit:read' },
+    { resource: 'notifications', action: 'read', name: 'notifications:read' },
+    { resource: 'notifications', action: 'write', name: 'notifications:write' },
 ];
 
 const PROFILES: SeedProfile[] = [
@@ -71,6 +73,8 @@ const PROFILES: SeedProfile[] = [
             'profiles:delete',
             'permissions:read',
             'audit:read',
+            'notifications:read',
+            'notifications:write',
         ],
     },
     {
@@ -81,6 +85,7 @@ const PROFILES: SeedProfile[] = [
             'accounts:read',
             'agreements:read',
             'audit:read',
+            'notifications:read',
         ],
     },
     {
@@ -92,6 +97,7 @@ const PROFILES: SeedProfile[] = [
             'orders:read',
             'transactions:read',
             'audit:read',
+            'notifications:read',
         ],
     },
     {
@@ -122,6 +128,8 @@ export default class ProfileSeeder implements Seeder {
         }
 
         for (const perm of PERMISSIONS) {
+            const existing = await permRepo.findOneBy({ name: perm.name });
+            if (existing) continue;
             await permRepo.save({
                 id: randomUUID(),
                 resource: perm.resource,

@@ -1,34 +1,33 @@
 {
-    "js/ts.tsdk.path": "node_modules/typescript/lib",
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.detectIndentation": false,
-    "editor.tabSize": 4,
-    "editor.insertSpaces": true,
-    "material-icon-theme.activeIconPack": "nest",
-    "pgliteExplorer.databasePaths": [
-        "/home/yigs-isc/Documents/isc-atm-integrator/data"
-    ],
-    "pgsql.connections": [
-        {
-            "id": "122DDFE2-7AAA-4864-8EB8-9798BA932215",
-            "groupId": "BB17C73F-3558-4EDD-AC22-A918977766ED",
-            "authenticationType": "SqlLogin",
-            "connectTimeout": 15,
-            "applicationName": "vscode-pgsql",
-            "clientEncoding": "utf8",
-            "sslmode": "disable",
-            "sshSavePassword": true,
-            "savePassword": true,
-            "sslRootCertMode": "none",
-            "server": "localhost",
-            "user": "postgre",
-            "password": "",
-            "profileName": "postgres",
-            "database": "postgres",
-            "port": "5433",
-            "expiresOn": 0,
-            "sshPassword": ""
-        }
-    ]
+  "js/ts.tsdk.path": "packages/backend/node_modules/typescript/lib",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.detectIndentation": false,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "material-icon-theme.activeIconPack": "nest",
+  "pgsql.connections": [
+    {
+      "id": "11CEBCD6-86A2-471F-BCB2-51C5E7317830",
+      "groupId": "BB17C73F-3558-4EDD-AC22-A918977766ED",
+      "authenticationType": "SqlLogin",
+      "connectTimeout": 15,
+      "applicationName": "vscode-pgsql",
+      "clientEncoding": "utf8",
+      "sslmode": "allow",
+      "sshSavePassword": true,
+      "savePassword": true,
+      "sslRootCertMode": "none",
+      "server": "147.93.181.146",
+      "user": "admin",
+      "password": "",
+      "database": "isc-atm-integrator",
+      "profileName": "isc-atm-integrator",
+      "port": "5454",
+      "hostaddr": "147.93.181.146",
+      "connectionString": "postgresql://admin:admin@147.93.181.146:5454/isc-atm-integrator",
+      "expiresOn": 0,
+      "sshPassword": ""
+    }
+  ]
 }

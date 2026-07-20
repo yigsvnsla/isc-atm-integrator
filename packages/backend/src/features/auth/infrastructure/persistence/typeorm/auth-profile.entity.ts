@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('auth_profile')
 export class AuthProfileEntity {
-    @PrimaryColumn({ name: 'id' })
+    @PrimaryColumn({ name: 'id', type: 'uuid' })
     public id: string;
 
     @Column({ name: 'name' })

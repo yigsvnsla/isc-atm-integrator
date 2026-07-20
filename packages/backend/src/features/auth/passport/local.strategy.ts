@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { Inject } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { AUTH_USER_REPOSITORY } from '@features/auth/domain/auth-user.repository';
 import type { IAuthUserRepository } from '@features/auth/domain/auth-user.repository';
 import type { IAuthClient } from '../domain/auth-client.interface';

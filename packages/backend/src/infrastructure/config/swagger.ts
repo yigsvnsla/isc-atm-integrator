@@ -6,7 +6,10 @@ import {
 } from '@nestjs/swagger';
 import { ApiResponseError } from '@shared/core/response/api-response-error';
 import { ConfigService } from '@nestjs/config';
-import { apiReference } from '@scalar/nestjs-api-reference';
+import {
+    apiReference,
+    NestJSReferenceConfiguration,
+} from '@scalar/nestjs-api-reference';
 import { AppConfigService } from '@shared/core/types';
 
 import swaggerMetadata from '../../metadata';
@@ -86,7 +89,6 @@ export const swaggerSetup = async (app: INestApplication<any>) => {
         ignoreGlobalPrefix: true,
     };
 
-    // const swaggerMetadata = await loadSwaggerMetadata();
     await SwaggerModule.loadPluginMetadata(swaggerMetadata);
 
     const swaggerDocument = SwaggerModule.createDocument(
@@ -95,11 +97,15 @@ export const swaggerSetup = async (app: INestApplication<any>) => {
         options,
     );
 
-    return apiReference({
+    const swaggerSetup: NestJSReferenceConfiguration = {
         theme: 'purple',
         content: swaggerDocument,
         authentication: {
             preferredSecurityScheme: 'bearer',
         },
-    });
+    };
+
+    app.setGlobalPrefix(appPrefix);
+
+    app.use(`${appPrefix}/reference`, apiReference(swaggerSetup));
 };

@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('transaction')
 export class TransactionEntity {
-    @PrimaryColumn({ name: 'id' })
+    @PrimaryColumn({ name: 'id', type: 'uuid' })
     public id: string;
 
     @Column({ name: 'amount', nullable: true })

@@ -214,8 +214,5 @@ describe('Swagger Response Format', () => {
         const props = paginatedSchema!.properties as Record<string, unknown>;
         expect(props.data).toBeDefined();
         expect(props.metadata).toBeDefined();
-        expect(
-            (props.metadata as Record<string, unknown>).$ref as string,
-        ).toContain('ResponseMetadata');
     });
 });

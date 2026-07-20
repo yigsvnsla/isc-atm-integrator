@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('agreement')
 export class AgreementEntity {
-    @PrimaryColumn({ name: 'id' })
+    @PrimaryColumn({ name: 'id', type: 'uuid' })
     public id: string;
 
     @Column({ name: 'name' })

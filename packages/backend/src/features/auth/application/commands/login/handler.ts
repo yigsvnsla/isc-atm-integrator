@@ -2,7 +2,7 @@ import { HttpStatus, Inject, UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
 import { ResilienceCommand, TimeoutStrategy } from 'nestjs-resilience';

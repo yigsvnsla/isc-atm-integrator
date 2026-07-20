@@ -5,6 +5,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
 import {
     ResilienceCommand,
@@ -26,6 +27,7 @@ import { BANK_ACCOUNT_REPOSITORY } from '@features/accounts/domain/account.repos
 import type { IBankAccountRepository } from '@features/accounts/domain/account.repository';
 import { ResponseMetadataBuilder } from '@shared/core/response/api-response-metadata-builder';
 import { CacheResultService } from '@core/cache/cache-result.service';
+import { TransactionCreatedEvent } from '@features/transactions/application/events/transaction-created.event';
 import type { AppConfigService } from '@shared/core/types';
 
 @CommandHandler(CreateTransactionCommand)
@@ -40,6 +42,7 @@ export class CreateTransactionHandler
         private readonly accountRepository: IBankAccountRepository,
         private readonly cacheResult: CacheResultService,
         private readonly configService: ConfigService,
+        private readonly eventEmitter: EventEmitter2,
     ) {
         super([
             new CircuitBreakerStrategy({
@@ -101,6 +104,18 @@ export class CreateTransactionHandler
             .build();
 
         await this.repository.save(result);
+
+        this.eventEmitter.emit(
+            TransactionCreatedEvent.eventName,
+            new TransactionCreatedEvent(
+                result.id,
+                result.bankAccountId,
+                result.amount ?? 0,
+                result.type ?? 'debit',
+                result.description ?? '',
+                result.operation,
+            ),
+        );
 
         const metadata = new ResponseMetadataBuilder()
             .setStatusCode(HttpStatus.CREATED)

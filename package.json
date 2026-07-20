@@ -1,18 +1,24 @@
 {
-    "name": "isc-atm-integrator",
-    "private": true,
-    "workspaces": [
-        "packages/*"
-    ],
-    "scripts": {
-        "dev": "cd packages/backend && bun run start:dev",
-        "build": "cd packages/backend && bun run build",
-        "start": "cd packages/backend && bun run start",
-        "test": "cd packages/backend && bun run test",
-        "lint": "cd packages/backend && bun run lint",
-        "db:start": "cd packages/backend && bun run db:start",
-        "db:seed": "cd packages/backend && bun run db:seed",
-        "migration:run": "cd packages/backend && bun run migration:run",
-        "client:dev": "cd packages/client && bun run dev"
-    }
+  "name": "isc-atm-integrator",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "dev": "cd packages/backend && bun run start:dev",
+    "build": "cd packages/backend && bun run build",
+    "start": "cd packages/backend && bun run start",
+    "test": "cd packages/backend && bun run test",
+    "lint": "cd packages/backend && bun run lint",
+    "db:cache": "cd packages/backend && bun run start:cache",
+    "db:start": "cd packages/backend && bun run db:start",
+    "db:seed": "cd packages/backend && bun run db:seed",
+    "migration:run": "cd packages/backend && bun run migration:run",
+    "client:dev": "cd packages/client && bun run dev"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.0"
+  }
 }

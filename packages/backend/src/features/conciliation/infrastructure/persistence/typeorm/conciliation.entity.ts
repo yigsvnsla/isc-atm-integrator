@@ -1,9 +1,8 @@
-import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { ConciliationMatchEntity } from './conciliation-match.entity';
+import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('conciliations')
 export class ConciliationEntity {
-    @PrimaryColumn({ name: 'id' })
+    @PrimaryColumn({ name: 'id', type: 'uuid' })
     public id: string;
 
     @Column({ name: 'run_at' })
@@ -14,7 +13,4 @@ export class ConciliationEntity {
 
     @Column({ name: 'summary', type: 'jsonb' })
     public summary: { matched: number; discrepancies: number; missing: number };
-
-    @OneToMany(() => ConciliationMatchEntity, match => match.conciliation)
-    public matches?: ConciliationMatchEntity[];
 }

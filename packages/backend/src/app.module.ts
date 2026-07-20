@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule } from '@nestjs/config';
 import { ClsModule } from 'nestjs-cls';
 import { ResilienceModule } from 'nestjs-resilience';
@@ -21,6 +22,7 @@ import { HealthModule } from '@infrastructure/health/health.module';
         // TODO: ResilienceModule global por ahora. Evaluar mover a módulos
         // individuales (ej. OrdersModule) cuando se necesiten políticas
         // diferentes por feature o se quiera limitar el scope.
+        EventEmitterModule.forRoot({ global: true }),
         ResilienceModule.forRoot({}),
         DatabaseModule.forRoot(),
         ClsModule.forRoot({

@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('api_key')
 export class ApiKeyEntity {
-    @PrimaryColumn({ name: 'id' })
+    @PrimaryColumn({ name: 'id', type: 'uuid' })
     public id: string;
 
     @Column({ name: 'key_hash' })

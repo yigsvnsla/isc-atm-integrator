@@ -3,7 +3,7 @@ import { ConciliationEntity } from './conciliation.entity';
 
 @Entity('conciliation_matches')
 export class ConciliationMatchEntity {
-    @PrimaryColumn({ name: 'id' })
+    @PrimaryColumn({ name: 'id', type: 'uuid' })
     public id: string;
 
     @Column({ name: 'conciliation_id' })
@@ -24,7 +24,7 @@ export class ConciliationMatchEntity {
     @Column({ name: 'notes', nullable: true })
     public notes?: string;
 
-    @ManyToOne(() => ConciliationEntity, conciliation => conciliation.matches)
+    @ManyToOne(() => ConciliationEntity)
     @JoinColumn({ name: 'conciliation_id' })
     public conciliation: ConciliationEntity;
 }

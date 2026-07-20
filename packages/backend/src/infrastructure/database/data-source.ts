@@ -1,7 +1,5 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
-import { PGliteDriver } from 'typeorm-pglite';
-import type { PGliteOptions } from '@electric-sql/pglite';
 import configuration from '@infrastructure/config/configuration';
 
 import { OrderEntity } from '@features/orders/infrastructure/persistence/typeorm/order.entity';
@@ -15,43 +13,23 @@ import { AuthPermissionEntity } from '@features/auth/infrastructure/persistence/
 import { UserProfileEntity } from '@features/auth/infrastructure/persistence/typeorm/user-profile.entity';
 import { ProfilePermissionEntity } from '@features/auth/infrastructure/persistence/typeorm/profile-permission.entity';
 import { ApiKeyEntity } from '@features/auth/infrastructure/persistence/typeorm/api-key.entity';
+import { ConciliationEntity } from '@features/conciliation/infrastructure/persistence/typeorm/conciliation.entity';
+import { ConciliationMatchEntity } from '@features/conciliation/infrastructure/persistence/typeorm/conciliation-match.entity';
 
 const cfg = configuration();
 const db = cfg.database;
 
 let baseOptions: DataSourceOptions;
 
-if (db.type === 'postgres') {
-    baseOptions = {
-        type: 'postgres',
-        host: db.postgres.host,
-        port: db.postgres.port,
-        username: db.postgres.username,
-        password: db.postgres.password,
-        database: db.postgres.name,
-        synchronize: db.postgres.synchronize,
-    };
-} else if (db.type === 'pglite-socket') {
-    baseOptions = {
-        type: 'postgres',
-        host: db.socket.host,
-        port: db.socket.port,
-        username: 'postgres',
-        password: 'postgres',
-        database: 'postgres',
-        synchronize: true,
-    };
-} else {
-    const options: PGliteOptions = {};
-    if (db.pglite.dataDir) {
-        options.dataDir = db.pglite.dataDir;
-    }
-    baseOptions = {
-        type: 'postgres',
-        driver: new PGliteDriver(options).driver,
-        synchronize: true,
-    };
-}
+baseOptions = {
+    type: 'postgres',
+    host: db.postgres.host,
+    port: db.postgres.port,
+    username: db.postgres.username,
+    password: db.postgres.password,
+    database: db.postgres.name,
+    synchronize: false,
+};
 
 const options: DataSourceOptions & SeederOptions = {
     ...baseOptions,
@@ -67,6 +45,8 @@ const options: DataSourceOptions & SeederOptions = {
         UserProfileEntity,
         ProfilePermissionEntity,
         ApiKeyEntity,
+        ConciliationEntity,
+        ConciliationMatchEntity,
     ],
     migrations: [`${db.migrations.dir}/**/*{.ts,.js}`],
     migrationsTableName: db.migrations.tableName,

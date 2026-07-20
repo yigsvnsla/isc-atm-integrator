@@ -1,10 +1,11 @@
 import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'node:crypto';
 import { AuthUserEntity } from '@features/auth/infrastructure/persistence/typeorm/auth-user.entity';
 import { AuthProfileEntity } from '@features/auth/infrastructure/persistence/typeorm/auth-profile.entity';
 import { UserProfileEntity } from '@features/auth/infrastructure/persistence/typeorm/user-profile.entity';
+import { AgreementEntity } from '@features/agreements/infrastructure/persistence/typeorm/agreement.entity';
 
 export default class AdminUserSeeder implements Seeder {
     public async run(dataSource: DataSource): Promise<void> {
@@ -26,6 +27,13 @@ export default class AdminUserSeeder implements Seeder {
             return;
         }
 
+        const agreementRepo = dataSource.getRepository(AgreementEntity);
+        const agreement = await agreementRepo.findOne({ where: {} });
+        if (!agreement) {
+            console.warn('No agreements found. Skipping admin user seed.');
+            return;
+        }
+
         const password = process.env.APP_SEED_ADMIN_PASSWORD ?? 'admin123';
         const passwordHash = await bcrypt.hash(password, 12);
 
@@ -35,7 +43,7 @@ export default class AdminUserSeeder implements Seeder {
             passwordHash,
             name: 'System Admin',
             state: 'active',
-            agreementId: '00000000-0000-0000-0000-000000000000',
+            agreementId: agreement.id,
             createdAt: new Date(),
             updatedAt: new Date(),
         });

@@ -3,14 +3,18 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { ConfigService } from '@nestjs/config';
 import { AppConfigService } from '@shared/core/types';
 
-export const corsSetup = (app: INestApplication<any>): CorsOptions => {
+export const corsSetup = (app: INestApplication) => {
     const configService = app.get<AppConfigService>(ConfigService);
 
-    return {
-        origin: configService.get('server.cors.origin', { infer: true }),
-        methods: configService.get('server.cors.methods', { infer: true }),
-        credentials: configService.get('server.cors.credentials', {
-            infer: true,
-        }),
+    const { credentials, methods, origin } = configService.get('server.cors', {
+        infer: true,
+    });
+
+    const corsConfig: CorsOptions = {
+        origin,
+        methods,
+        credentials,
     };
+
+    app.enableCors(corsConfig);
 };

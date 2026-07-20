@@ -1,5 +1,6 @@
 import { HttpStatus, Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CONCILIATION_REPOSITORY } from '../../../domain/conciliation.repository';
 import type { IConciliationRepository } from '../../../domain/conciliation.repository';
 import { Conciliation } from '../../../domain/conciliation';
@@ -9,6 +10,7 @@ import type { ITransactionRepository } from '@features/transactions/domain/trans
 import { RunConciliationCommand } from './command';
 import { ConciliationResponse } from '../../queries/get-conciliations/response.dto';
 import { ResponseMetadataBuilder } from '@shared/core/response/api-response-metadata-builder';
+import { ConciliationCompletedEvent } from '@features/conciliation/application/events/conciliation-completed.event';
 
 @CommandHandler(RunConciliationCommand)
 export class RunConciliationHandler implements ICommandHandler<RunConciliationCommand> {
@@ -17,6 +19,7 @@ export class RunConciliationHandler implements ICommandHandler<RunConciliationCo
         private readonly conciliationRepository: IConciliationRepository,
         @Inject(TRANSACTION_REPOSITORY)
         private readonly transactionRepository: ITransactionRepository,
+        private readonly eventEmitter: EventEmitter2,
     ) {}
 
     public async execute(command: RunConciliationCommand): Promise<ConciliationResponse> {
@@ -98,6 +101,15 @@ export class RunConciliationHandler implements ICommandHandler<RunConciliationCo
         for (const match of matchBuilders) {
             await this.conciliationRepository.createMatch(match);
         }
+
+        this.eventEmitter.emit(
+            ConciliationCompletedEvent.eventName,
+            new ConciliationCompletedEvent(
+                conciliationId,
+                'completed',
+                { matched, discrepancies, missing },
+            ),
+        );
 
         const metadata = new ResponseMetadataBuilder()
             .setStatusCode(HttpStatus.CREATED)

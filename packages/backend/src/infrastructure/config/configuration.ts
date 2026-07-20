@@ -32,7 +32,7 @@ export default () => ({
     },
 
     database: {
-        type: String(process.env.DB_TYPE ?? 'pglite'),
+        type: String(process.env.DB_TYPE ?? 'postgres'),
         postgres: {
             host: String(process.env.DB_HOST ?? 'localhost'),
             port: parseInt(String(process.env.DB_PORT ?? '5432'), 10),
@@ -40,16 +40,6 @@ export default () => ({
             password: String(process.env.DB_PASSWORD ?? 'postgres'),
             name: String(process.env.DB_NAME ?? 'isc_atm'),
             synchronize: process.env.NODE_ENV !== 'production',
-        },
-        pglite: {
-            dataDir: process.env.PGLITE_DATA_DIR,
-        },
-        socket: {
-            host: String(process.env.PGLITE_SOCKET_HOST ?? '127.0.0.1'),
-            port: parseInt(
-                String(process.env.PGLITE_SOCKET_PORT ?? '5433'),
-                10,
-            ),
         },
         migrations: {
             dir: String(

@@ -35,5 +35,6 @@ import { CacheResultService } from '@shared/core/cache/cache-result.service';
         GetTransactionsHandler,
         GetTransactionByIdHandler,
     ],
+    exports: [TRANSACTION_REPOSITORY],
 })
 export class TransactionsModule {}

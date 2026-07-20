@@ -1,9 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import cookieParser from 'cookie-parser';
 import type { Request, Response, NextFunction } from 'express';
 import type { AppConfigService } from '@shared/core/types';
 import { CsrfService } from '../application/csrf.service';
+import cookieParser from 'cookie-parser';
 
 export function csrfSetup(app: INestApplication) {
     const configService = app.get<AppConfigService>(ConfigService);
@@ -19,6 +19,7 @@ export function csrfSetup(app: INestApplication) {
         return;
     }
 
+    app.enableShutdownHooks();
     app.use(cookieParser());
 
     const csrfService = app.get(CsrfService);
